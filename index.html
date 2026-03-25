@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purposive Communication | Asynchronous Class</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Open+Sans:wght@400;600;700&display=swap');
+        
+        body { font-family: 'Open Sans', sans-serif; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Nunito', sans-serif; }
+        
+        .gradient-bg { background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 50%, #fbbf24 100%); }
+        
+        .module-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+        .module-card.locked {
+            background: #f8fafc;
+            filter: grayscale(0.1);
+            opacity: 0.85;
+            cursor: default;
+        }
+        .module-card.unlocked {
+            cursor: pointer;
+        }
+        
+        .team-card { transition: all 0.3s ease; }
+        .team-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <!-- Navigation -->
+    <nav class="gradient-bg text-white sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-2 font-bold text-xl">
+                    <i data-lucide="message-square" class="w-8 h-8"></i>
+                    <span>Purposive Comm</span>
+                </div>
+                
+                <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg hover:bg-white/20 transition">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="#" class="px-4 py-2 rounded-lg bg-white/20 font-semibold">Home</a>
+                    <a href="#modules" class="px-4 py-2 rounded-lg hover:bg-white/20">Modules</a>
+                    <a href="#about" class="px-4 py-2 rounded-lg hover:bg-white/20">About</a>
+                </div>
+            </div>
+            
+            <div id="mobile-menu" class="hidden md:hidden pb-4">
+                <a href="#" class="block px-4 py-2 rounded-lg bg-white/20 font-semibold mb-2">Home</a>
+                <a href="#modules" class="block px-4 py-2 rounded-lg hover:bg-white/20 mb-2">Modules</a>
+                <a href="#about" class="block px-4 py-2 rounded-lg hover:bg-white/20">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section (Simplified) -->
+    <header class="gradient-bg text-white py-12">
+        <div class="container mx-auto px-4 text-center">
+            <div class="inline-block p-3 bg-white/20 rounded-full mb-4">
+                <i data-lucide="message-square" class="w-12 h-12"></i>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-extrabold mb-4">Asynchronous Class</h1>
+            <h2 class="text-2xl md:text-3xl font-bold mb-4">Purposive Communication</h2>
+            <p class="text-lg max-w-2xl mx-auto opacity-90">
+                Explore the art of effective communication. Click a module below to begin.
+            </p>
+        </div>
+    </header>
+
+    <!-- Modules Section (Lesson 1 omitted, Lessons 2-8 displayed) -->
+    <section id="modules" class="py-12 bg-slate-100">
+        <div class="container mx-auto px-4">
+            <h2 class="text-2xl md:text-3xl font-bold text-center mb-4 text-indigo-600">📘 Course Modules</h2>
+            <p class="text-center text-slate-600 mb-8 max-w-2xl mx-auto">Lesson 2 is open — click the card to start. Other modules will be unlocked later.</p>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                <!-- Lesson 1 is omitted (left blank) -->
+                
+                <!-- Lesson 2: UNLOCKED, links to week2.html -->
+                <a href="week2.html" class="module-card bg-white rounded-xl shadow-md overflow-hidden block">
+                    <div class="h-24 bg-gradient-to-r from-indigo-400 to-purple-500 flex items-center justify-between px-6">
+                        <span class="text-white font-bold text-lg">Lesson 2</span>
+                        <i data-lucide="external-link" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 flex items-center">
+                            <i data-lucide="mic" class="w-5 h-5 text-indigo-500 mr-2"></i>
+                            Public Speaking & Speech Delivery
+                        </h3>
+                        <p class="text-slate-600 text-sm mb-4">Techniques for effective oral presentations and speech preparation.</p>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-green-600 font-semibold">🔓 Open</span>
+                            <span class="bg-green-100 text-green-600 px-2 py-1 rounded-full text-xs">Click to start</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Lesson 3: Making Inquiries (locked) -->
+                <div class="module-card locked bg-white rounded-xl shadow-md overflow-hidden opacity-80">
+                    <div class="h-24 bg-gradient-to-r from-slate-400 to-gray-500 flex items-center justify-between px-6">
+                        <span class="text-white font-bold text-lg">Lesson 3</span>
+                        <i data-lucide="lock" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 flex items-center">
+                            <i data-lucide="help-circle" class="w-5 h-5 text-slate-500 mr-2"></i>
+                            Making Inquiries
+                        </h3>
+                        <p class="text-slate-600 text-sm mb-4">Asking questions, requesting information, and effective inquiry techniques.</p>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-400 font-semibold">🔒 Locked</span>
+                            <span class="bg-slate-200 text-slate-500 px-2 py-1 rounded-full text-xs">Coming soon</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lesson 4: Communication for Teachers: Storytelling (locked) -->
+                <div class="module-card locked bg-white rounded-xl shadow-md overflow-hidden opacity-80">
+                    <div class="h-24 bg-gradient-to-r from-slate-400 to-gray-500 flex items-center justify-between px-6">
+                        <span class="text-white font-bold text-lg">Lesson 4</span>
+                        <i data-lucide="lock" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 flex items-center">
+                            <i data-lucide="book-open" class="w-5 h-5 text-slate-500 mr-2"></i>
+                            Communication for Teachers: Storytelling
+                        </h3>
+                        <p class="text-slate-600 text-sm mb-4">Using narratives to engage, educate, and inspire learners.</p>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-400 font-semibold">🔒 Locked</span>
+                            <span class="bg-slate-200 text-slate-500 px-2 py-1 rounded-full text-xs">Coming soon</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lesson 5: Communication for Business and Trade (locked) -->
+                <div class="module-card locked bg-white rounded-xl shadow-md overflow-hidden opacity-80">
+                    <div class="h-24 bg-gradient-to-r from-slate-400 to-gray-500 flex items-center justify-between px-6">
+                        <span class="text-white font-bold text-lg">Lesson 5</span>
+                        <i data-lucide="lock" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 flex items-center">
+                            <i data-lucide="briefcase" class="w-5 h-5 text-slate-500 mr-2"></i>
+                            Communication for Business and Trade
+                        </h3>
+                        <p class="text-slate-600 text-sm mb-4">Professional correspondence, negotiations, and workplace communication.</p>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-400 font-semibold">🔒 Locked</span>
+                            <span class="bg-slate-200 text-slate-500 px-2 py-1 rounded-full text-xs">Coming soon</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lesson 6: Writing Business and Technical Report (locked) -->
+                <div class="module-card locked bg-white rounded-xl shadow-md overflow-hidden opacity-80">
+                    <div class="h-24 bg-gradient-to-r from-slate-400 to-gray-500 flex items-center justify-between px-6">
+                        <span class="text-white font-bold text-lg">Lesson 6</span>
+                        <i data-lucide="lock" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 flex items-center">
+                            <i data-lucide="file-text" class="w-5 h-5 text-slate-500 mr-2"></i>
+                            Writing Business and Technical Report
+                        </h3>
+                        <p class="text-slate-600 text-sm mb-4">Structures, formats, and effective reporting techniques.</p>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-400 font-semibold">🔒 Locked</span>
+                            <span class="bg-slate-200 text-slate-500 px-2 py-1 rounded-full text-xs">Coming soon</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lesson 7: Communication for Employment: The Resume (locked) -->
+                <div class="module-card locked bg-white rounded-xl shadow-md overflow-hidden opacity-80">
+                    <div class="h-24 bg-gradient-to-r from-slate-400 to-gray-500 flex items-center justify-between px-6">
+                        <span class="text-white font-bold text-lg">Lesson 7</span>
+                        <i data-lucide="lock" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 flex items-center">
+                            <i data-lucide="file-user" class="w-5 h-5 text-slate-500 mr-2"></i>
+                            Communication for Employment: The Resume
+                        </h3>
+                        <p class="text-slate-600 text-sm mb-4">Crafting effective resumes and cover letters for job applications.</p>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-400 font-semibold">🔒 Locked</span>
+                            <span class="bg-slate-200 text-slate-500 px-2 py-1 rounded-full text-xs">Coming soon</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lesson 8: Communication for Employment (locked) -->
+                <div class="module-card locked bg-white rounded-xl shadow-md overflow-hidden opacity-80">
+                    <div class="h-24 bg-gradient-to-r from-slate-400 to-gray-500 flex items-center justify-between px-6">
+                        <span class="text-white font-bold text-lg">Lesson 8</span>
+                        <i data-lucide="lock" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 flex items-center">
+                            <i data-lucide="users" class="w-5 h-5 text-slate-500 mr-2"></i>
+                            Communication for Employment
+                        </h3>
+                        <p class="text-slate-600 text-sm mb-4">Interview skills, professional branding, and workplace readiness.</p>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-400 font-semibold">🔒 Locked</span>
+                            <span class="bg-slate-200 text-slate-500 px-2 py-1 rounded-full text-xs">Coming soon</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <p class="text-center text-slate-500 mt-6 text-sm">New modules will be released weekly.</p>
+        </div>
+    </section>
+
+    <!-- About Us Section (unchanged) -->
+    <section id="about" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-4 text-indigo-600">👥 About This Asynchronous Class</h2>
+            <p class="text-center text-slate-600 mb-12 max-w-2xl mx-auto">A collaborative project for Purposive Communication</p>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <!-- Team member cards -->
+                <div class="team-card bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 shadow-lg text-center">
+                    <div class="w-24 h-24 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+                        <span class="text-white text-3xl font-bold">JM</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-1">James Francis Maniago</h3>
+                    <p class="text-sm text-indigo-600 font-semibold mb-3">Team Member</p>
+                    <p class="text-sm text-slate-600">Content & design contributor</p>
+                </div>
+                
+                <div class="team-card bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 shadow-lg text-center">
+                    <div class="w-24 h-24 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+                        <span class="text-white text-3xl font-bold">JD</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-1">Jhanalyn Cef David</h3>
+                    <p class="text-sm text-purple-600 font-semibold mb-3">Team Member</p>
+                    <p class="text-sm text-slate-600">Content & design contributor</p>
+                </div>
+                
+                <div class="team-card bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 shadow-lg text-center">
+                    <div class="w-24 h-24 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+                        <span class="text-white text-3xl font-bold">WA</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-1">Wency Mae Alba</h3>
+                    <p class="text-sm text-green-600 font-semibold mb-3">Team Member</p>
+                    <p class="text-sm text-slate-600">Content & design contributor</p>
+                </div>
+                
+                <div class="team-card bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 shadow-lg text-center md:col-start-2">
+                    <div class="w-24 h-24 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+                        <span class="text-white text-3xl font-bold">KB</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-1">Kenneth Vincent Balivia</h3>
+                    <p class="text-sm text-amber-600 font-semibold mb-3">Team Member</p>
+                    <p class="text-sm text-slate-600">Content & design contributor</p>
+                </div>
+                
+                <div class="team-card bg-gradient-to-br from-rose-50 to-red-50 rounded-2xl p-6 shadow-lg text-center">
+                    <div class="w-24 h-24 bg-gradient-to-r from-rose-500 to-red-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+                        <span class="text-white text-3xl font-bold">EI</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-1">Earl Troy Anthony Inventor</h3>
+                    <p class="text-sm text-rose-600 font-semibold mb-3">Team Member</p>
+                    <p class="text-sm text-slate-600">Content & design contributor</p>
+                </div>
+            </div>
+            
+            <div class="text-center mt-10 bg-indigo-50 p-6 rounded-2xl max-w-2xl mx-auto">
+                <p class="text-slate-700">
+                    <span class="font-bold text-indigo-600">📘 About this project:</span> This asynchronous class website was created to provide an engaging, self-paced learning experience for Purposive Communication. Lesson 2 is currently open; additional modules will be unlocked progressively.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-slate-800 text-white py-6">
+        <div class="container mx-auto px-4 text-center">
+            <p class="mb-2">Asynchronous Class | Purposive Communication</p>
+            <p class="text-sm opacity-60">
+                Created by: Maniago, David, Alba, Balivia, Inventor
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+        lucide.createIcons();
+    </script>
+</body>
+</html>

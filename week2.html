@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 2: Public Speaking | Purposive Communication</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Open+Sans:wght@400;600;700&display=swap');
+        
+        body { font-family: 'Open Sans', sans-serif; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Nunito', sans-serif; }
+        
+        .gradient-bg { background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 50%, #fbbf24 100%); }
+        .action-btn { transition: all 0.3s ease; }
+        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 12px;
+            background: #f1f5f9;
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .bg-white20 { background-color: rgba(255, 255, 255, 0.2); }
+        
+        .mode-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .mode-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            border-color: #8b5cf6;
+        }
+        
+        /* Canva embed responsive container */
+        .canva-container {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            overflow: hidden;
+            border-radius: 16px;
+            background: white;
+        }
+        .canva-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <!-- Navigation -->
+    <nav class="gradient-bg text-white sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <a href="index.html" class="flex items-center space-x-2 font-bold text-xl">
+                    <i data-lucide="arrow-left" class="w-6 h-6"></i>
+                    <span>Back to Home</span>
+                </a>
+                <div class="text-sm font-semibold bg-white20 px-4 py-2 rounded-full">
+                    Lesson 2 of 8
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Lesson Header -->
+    <header class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-12">
+        <div class="container mx-auto px-4 text-center">
+            <div class="inline-block p-3 bg-white20 rounded-full mb-4">
+                <i data-lucide="mic" class="w-12 h-12"></i>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-extrabold mb-2">Lesson 2: Public Speaking</h1>
+            <p class="text-lg opacity-90">Techniques for effective oral presentations and speech preparation.</p>
+        </div>
+    </header>
+    
+    <main class="container mx-auto px-4 py-8 max-w-5xl">
+        
+        <!-- CANVA WIDGET – INTERACTIVE PRESENTATION -->
+        <section class="mb-12">
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="bg-purple-100 p-2 rounded-lg">
+                    <i data-lucide="presentation" class="w-6 h-6 text-purple-600"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800">📘 Interactive Module</h2>
+            </div>
+            <div class="canva-container shadow-xl">
+                <iframe src="https://www.canva.com/design/DAHE3KZURN4/UGsLQJ-dyFZC5YzTYllrpA/view?embed" 
+                        allowfullscreen="allowfullscreen" 
+                        allow="fullscreen">
+                </iframe>
+            </div>
+            <p class="text-center text-sm text-slate-500 mt-3">Click the presentation to view full screen. Use arrows to navigate.</p>
+        </section>
+        
+        <!-- Introduction -->
+        <section class="mb-12 bg-indigo-50 rounded-2xl p-6 border-2 border-indigo-200">
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="bg-indigo-500 text-white p-2 rounded-lg">
+                    <i data-lucide="book-open" class="w-6 h-6"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-indigo-900">📖 What is Public Speaking?</h2>
+            </div>
+            <p class="text-indigo-800 text-lg font-medium mb-2">Public speaking is a process of speaking in a structured, deliberate manner to inform, influence, or entertain an audience.</p>
+            <p class="text-slate-700">A <strong class="font-semibold text-indigo-700">speech</strong> is the term used to refer to the body of spoken expressions of information and ideas. A speech may be delivered in any of the following modes: <strong>reading from a manuscript, memorized, extemporaneous, or impromptu</strong>. The choice of mode is determined by factors such as length of preparation, complexity of the message, purpose, and occasion.</p>
+        </section>
+        
+        <!-- Modes of Speech Delivery -->
+        <section class="mb-12">
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="bg-purple-100 p-2 rounded-lg">
+                    <i data-lucide="layers" class="w-6 h-6 text-purple-600"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800">Four Modes of Delivery</h2>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Manuscript -->
+                <div class="mode-card bg-white rounded-xl shadow-md p-6 hover:shadow-lg">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="bg-blue-100 p-2 rounded-lg">
+                            <i data-lucide="file-text" class="w-6 h-6 text-blue-600"></i>
+                        </div>
+                        <h3 class="font-bold text-xl text-blue-700">📄 Reading from a Manuscript</h3>
+                    </div>
+                    <p class="text-slate-700 mb-2">Appropriate when the speech is long and details are complicated and essential, requiring complete accuracy. Often used when delivering a prepared speech on behalf of another speaker.</p>
+                    <p class="text-slate-600 text-sm italic">Challenge: Naturalness and eye contact may diminish because the speaker’s eyes travel between page and audience.</p>
+                </div>
+                
+                <!-- Memorized -->
+                <div class="mode-card bg-white rounded-xl shadow-md p-6 hover:shadow-lg">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="bg-green-100 p-2 rounded-lg">
+                            <i data-lucide="brain" class="w-6 h-6 text-green-600"></i>
+                        </div>
+                        <h3 class="font-bold text-xl text-green-700">🧠 Memorized Speech</h3>
+                    </div>
+                    <p class="text-slate-700 mb-2">Excellent for short messages; also used in oratorical, declamation, and literary contests. Requires committing every word to memory.</p>
+                    <p class="text-slate-600 text-sm italic">Risk: Loss of naturalness. The worst experience is forgetting lines and failing to transition smoothly to another mode.</p>
+                </div>
+                
+                <!-- Extemporaneous -->
+                <div class="mode-card bg-white rounded-xl shadow-md p-6 hover:shadow-lg">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="bg-amber-100 p-2 rounded-lg">
+                            <i data-lucide="file-outline" class="w-6 h-6 text-amber-600"></i>
+                        </div>
+                        <h3 class="font-bold text-xl text-amber-700">📝 Extemporaneous Speaking</h3>
+                    </div>
+                    <p class="text-slate-700 mb-2">The speaker uses an outline (short or long preparation) to guide delivery, formulating sentences while speaking. This method is common among lecturers and teachers.</p>
+                    <p class="text-slate-600 text-sm italic">Requires spontaneity, good organization, and adaptability.</p>
+                </div>
+                
+                <!-- Impromptu -->
+                <div class="mode-card bg-white rounded-xl shadow-md p-6 hover:shadow-lg">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="bg-red-100 p-2 rounded-lg">
+                            <i data-lucide="clock" class="w-6 h-6 text-red-600"></i>
+                        </div>
+                        <h3 class="font-bold text-xl text-red-700">⚡ Impromptu Speaking</h3>
+                    </div>
+                    <p class="text-slate-700 mb-2">Speaking at the spur of the moment with minimal or no preparation. Content and organization may suffer, but it brings out the most natural response.</p>
+                    <p class="text-slate-600 text-sm italic">Often used in meetings, Q&A sessions, or informal gatherings.</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Video Samples Section (Updated) -->
+        <section class="mb-12">
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="bg-red-100 p-2 rounded-lg">
+                    <i data-lucide="youtube" class="w-6 h-6 text-red-600"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800">🎬 Modes of Speech Delivery – Video Samples</h2>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Manuscript Reading Sample -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="video-container">
+                        <iframe src="https://www.youtube.com/embed/nVkqN9PvV9M" 
+                                title="Manuscript Speech Sample" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-1">📄 Reading from a Manuscript</h3>
+                        <p class="text-sm text-slate-600">Watch how a speaker reads a prepared script while maintaining engagement with the audience.</p>
+                    </div>
+                </div>
+                
+                <!-- Memorized Speech Sample -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="video-container">
+                        <iframe src="https://www.youtube.com/embed/3LuwEw2Ud8U" 
+                                title="Memorized Speech Sample" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-1">🧠 Memorized Speech</h3>
+                        <p class="text-sm text-slate-600">Example of a fully memorized delivery with emotional expression.</p>
+                    </div>
+                </div>
+                
+                <!-- Extemporaneous Sample -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="video-container">
+                        <iframe src="https://www.youtube.com/embed/8e9sFnmA2vM" 
+                                title="Extemporaneous Speech Sample" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-1">📝 Extemporaneous Speaking</h3>
+                        <p class="text-sm text-slate-600">A speaker uses an outline and natural conversation style.</p>
+                    </div>
+                </div>
+                
+                <!-- Impromptu Sample -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="video-container">
+                        <iframe src="https://www.youtube.com/embed/ZzEbyqErb_Q" 
+                                title="Impromptu Speech Sample" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-1">⚡ Impromptu Speaking</h3>
+                        <p class="text-sm text-slate-600">Spontaneous speech delivered with minimal preparation time.</p>
+                    </div>
+                </div>
+            </div>
+            <p class="text-center text-sm text-slate-500 mt-4">These video examples illustrate how each mode is used in real public speaking settings.</p>
+        </section>
+        
+        <!-- Comparison Table -->
+        <section class="mb-12 bg-slate-100 rounded-2xl p-6 border-2 border-slate-200">
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="bg-slate-600 text-white p-2 rounded-lg">
+                    <i data-lucide="table" class="w-6 h-6"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800">Quick Comparison</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full bg-white rounded-xl shadow-sm text-sm">
+                    <thead class="bg-slate-200">
+                        <tr>
+                            <th class="px-4 py-3 text-left">Mode</th>
+                            <th class="px-4 py-3 text-left">Best Used For</th>
+                            <th class="px-4 py-3 text-left">Key Challenge</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr><td class="px-4 py-3 font-medium">Manuscript</td><td class="px-4 py-3">Long, complex, or highly detailed messages</td><td class="px-4 py-3">Maintaining eye contact and naturalness</td></tr>
+                        <tr><td class="px-4 py-3 font-medium">Memorized</td><td class="px-4 py-3">Short speeches, contests, performances</td><td class="px-4 py-3">Risk of forgetting lines; can sound robotic</td></tr>
+                        <tr><td class="px-4 py-3 font-medium">Extemporaneous</td><td class="px-4 py-3">Classroom lectures, business presentations</td><td class="px-4 py-3">Requires good outline and spontaneity</td></tr>
+                        <tr><td class="px-4 py-3 font-medium">Impromptu</td><td class="px-4 py-3">Q&A sessions, meetings, informal settings</td><td class="px-4 py-3">Limited time to organize thoughts</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- Lesson Navigation -->
+        <div class="flex justify-between items-center pt-8 border-t border-slate-200">
+            <a href="index.html" class="flex items-center space-x-2 bg-blue-600 text-white px-6 py-3 rounded-full font-bold hover:bg-blue-700 transition action-btn">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                <span>← Home</span>
+            </a>
+            <div class="flex items-center space-x-2 text-slate-400 px-6 py-3">
+                <i data-lucide="lock" class="w-4 h-4"></i>
+                <span class="text-sm">Lesson 3: Coming Soon (Locked)</span>
+            </div>
+        </div>
+    </main>
+    
+    <footer class="gradient-bg text-white py-8 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="font-semibold">Lesson 2: Public Speaking | Purposive Communication</p>
+            <p class="text-sm opacity-80 mt-2">Master the art of delivering effective presentations! 🎤✨</p>
+        </div>
+    </footer>
+    
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
