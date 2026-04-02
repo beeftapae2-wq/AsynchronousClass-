@@ -2,41 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Purposive Communication | Asynchronous Class</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Open+Sans:wght@400;600;700&display=swap');
-        
-        body { font-family: 'Open Sans', sans-serif; }
+        body { font-family: 'Open Sans', sans-serif; background-color: #f8fafc; color: #1e293b; }
         h1, h2, h3, h4, h5, h6 { font-family: 'Nunito', sans-serif; }
-        
         .gradient-bg { background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 50%, #fbbf24 100%); }
-        
-        .module-card {
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-        .module-card.locked {
-            background: #f8fafc;
-            filter: grayscale(0.1);
-            opacity: 0.85;
-            cursor: default;
-        }
-        .module-card.unlocked {
-            cursor: pointer;
-        }
-        .module-card.unlocked:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 24px -6px rgba(99,102,241,0.2);
-        }
-        
+        .module-card { transition: all 0.3s ease; border: 2px solid transparent; }
+        .module-card.locked { background: #f8fafc; filter: grayscale(0.1); opacity: 0.85; cursor: default; }
+        .module-card.unlocked { cursor: pointer; }
+        .module-card.unlocked:hover { transform: translateY(-3px); box-shadow: 0 12px 24px -6px rgba(99,102,241,0.2); }
         .team-card { transition: all 0.3s ease; }
-        .team-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.15);
-        }
+        .team-card:hover { transform: translateY(-5px); box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.15); }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
@@ -54,6 +34,7 @@
     const isTeacher = (userRole === 'teacher');
 
     // ============ LESSON CONFIG ============
+    // IMPORTANT: Lesson 3 now points to your existing week3.html file
     const lessonConfig = [
         {
             id: 'lesson2',
@@ -69,10 +50,10 @@
             id: 'lesson3',
             label: 'Lesson 3',
             title: 'Making Inquiries',
-            desc: 'Asking questions, requesting information, and effective inquiry techniques.',
+            desc: 'Letters, emails, and interviews — asking for information professionally.',
             icon: 'help-circle',
             gradient: 'from-emerald-400 to-teal-500',
-            link: 'lesson3.html',
+            link: 'week3.html',          // ✅ DIRECT LINK to your uploaded week3.html
             defaultUnlocked: false
         },
         {
@@ -127,39 +108,40 @@
         }
     ];
 
-    // ============ LESSON ACCESS ============
+    // ============ LESSON ACCESS (localStorage) ============
     let lessonAccess = JSON.parse(localStorage.getItem('lessonAccess')) || {};
 
-    // Initialize defaults for any missing lessons
-    lessonConfig.forEach(cfg => {
-        if (!lessonAccess[cfg.id]) {
-            lessonAccess[cfg.id] = {
-                unlocked: cfg.defaultUnlocked,
-                completed: false,
-                link: cfg.link
-            };
-        }
-    });
-    localStorage.setItem('lessonAccess', JSON.stringify(lessonAccess));
+    function initLessonAccess() {
+        lessonConfig.forEach(cfg => {
+            if (!lessonAccess[cfg.id]) {
+                lessonAccess[cfg.id] = {
+                    unlocked: cfg.defaultUnlocked,
+                    completed: false,
+                    link: cfg.link
+                };
+            }
+        });
+        localStorage.setItem('lessonAccess', JSON.stringify(lessonAccess));
+    }
+    initLessonAccess();
 
     function saveLessonAccess() {
         localStorage.setItem('lessonAccess', JSON.stringify(lessonAccess));
+        renderModules();          // re-render current page
+        lucide.createIcons();
     }
 
+    // ============ TEACHER CONTROLS ============
     function toggleLesson(lessonId) {
         if (!isTeacher) return;
         lessonAccess[lessonId].unlocked = !lessonAccess[lessonId].unlocked;
         saveLessonAccess();
-        renderModules();
-        lucide.createIcons();
     }
 
     function unlockAllLessons() {
         if (!isTeacher) return;
         for (let key in lessonAccess) lessonAccess[key].unlocked = true;
         saveLessonAccess();
-        renderModules();
-        lucide.createIcons();
     }
 
     function lockAllLessons() {
@@ -168,24 +150,26 @@
             if (key !== 'lesson2') lessonAccess[key].unlocked = false;
         }
         saveLessonAccess();
-        renderModules();
-        lucide.createIcons();
     }
 
+    // ============ MARK LESSON COMPLETED & AUTO-UNLOCK NEXT ============
     function markCompleted(lessonId) {
+        if (lessonAccess[lessonId].completed) return;
         lessonAccess[lessonId].completed = true;
-        saveLessonAccess();
+        
+        // Auto-unlock the next lesson in sequence
         const lessons = lessonConfig.map(l => l.id);
         const idx = lessons.indexOf(lessonId);
         if (idx < lessons.length - 1) {
-            const next = lessons[idx + 1];
-            if (!lessonAccess[next].unlocked) {
-                lessonAccess[next].unlocked = true;
-                saveLessonAccess();
+            const nextId = lessons[idx + 1];
+            if (!lessonAccess[nextId].unlocked) {
+                lessonAccess[nextId].unlocked = true;
             }
         }
-        renderModules();
-        lucide.createIcons();
+        saveLessonAccess();
+        
+        // Optional: show a quick confirmation
+        alert(`✅ "${lessonConfig.find(l => l.id === lessonId).title}" marked as completed! Next lesson has been unlocked.`);
     }
 
     function logout() {
@@ -193,7 +177,7 @@
         window.location.href = 'login.html';
     }
 
-    // ============ RENDER MODULES ============
+    // ============ RENDER MODULES (Fully dynamic, teacher/student aware) ============
     function renderModules() {
         const grid = document.getElementById('modulesGrid');
         if (!grid) return;
@@ -202,8 +186,9 @@
             const access = lessonAccess[cfg.id];
             const unlocked = access.unlocked;
             const completed = access.completed;
-
+            
             if (unlocked) {
+                // UNLOCKED CARD
                 return `
                 <div class="relative">
                     <a href="${cfg.link}" class="module-card unlocked bg-white rounded-xl shadow-md overflow-hidden block">
@@ -219,10 +204,9 @@
                             <p class="text-slate-600 text-sm mb-3">${cfg.desc}</p>
                             <div class="flex justify-between items-center text-sm">
                                 <span class="text-green-600 font-semibold">🔓 Open</span>
-                                ${completed
-                                    ? '<span class="bg-green-100 text-green-600 px-2 py-1 rounded-full text-xs">✓ Completed</span>'
-                                    : '<span class="bg-blue-100 text-blue-600 px-2 py-1 rounded-full text-xs">Click to start</span>'
-                                }
+                                ${completed 
+                                    ? '<span class="bg-green-100 text-green-600 px-2 py-1 rounded-full text-xs">✓ Completed</span>' 
+                                    : '<span class="bg-blue-100 text-blue-600 px-2 py-1 rounded-full text-xs">Click to start</span>'}
                             </div>
                         </div>
                     </a>
@@ -234,6 +218,7 @@
                     </div>` : ''}
                 </div>`;
             } else {
+                // LOCKED CARD
                 return `
                 <div class="module-card locked bg-white rounded-xl shadow-md overflow-hidden">
                     <div class="h-24 bg-gradient-to-r from-slate-400 to-gray-500 flex items-center justify-between px-6">
@@ -260,7 +245,55 @@
                 </div>`;
             }
         }).join('');
+        
+        // Re-initialize Lucide icons after DOM update
+        if (typeof lucide !== 'undefined' && lucide.createIcons) {
+            lucide.createIcons();
+        }
     }
+
+    // ============ CROSS-TAB SYNCHRONIZATION ============
+    // When localStorage changes in another tab, re-render automatically.
+    window.addEventListener('storage', (event) => {
+        if (event.key === 'lessonAccess') {
+            // Reload the updated lessonAccess from localStorage
+            const newAccess = JSON.parse(event.newValue);
+            if (newAccess) {
+                lessonAccess = newAccess;
+                renderModules();
+                lucide.createIcons();
+            }
+        }
+    });
+
+    // ============ MARK COMPLETION FROM LESSON PAGE (using URL param) ============
+    // If the user returns to index with ?complete=lesson3, mark that lesson as completed.
+    function checkCompletionParam() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const completeId = urlParams.get('complete');
+        if (completeId && lessonConfig.some(l => l.id === completeId)) {
+            markCompleted(completeId);
+            // Remove param from URL without refreshing
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+        }
+    }
+
+    // ============ INITIAL PAGE LOAD ============
+    document.addEventListener('DOMContentLoaded', () => {
+        checkCompletionParam();
+        renderModules();
+        lucide.createIcons();
+        
+        // Set user info in nav and hero
+        document.getElementById('navUserLabel').textContent = isTeacher ? '👩‍🏫 Teacher Mode' : '👨‍🎓 ' + userName;
+        document.getElementById('heroWelcome').textContent = 'Welcome, ' + userName + '! Click a module below to begin.';
+        
+        // Show teacher controls only for teacher role
+        if (isTeacher) {
+            document.getElementById('teacherControls').style.display = 'block';
+        }
+    });
 </script>
 
 <!-- Navigation -->
@@ -293,7 +326,7 @@
     </div>
 </header>
 
-<!-- Teacher Controls -->
+<!-- Teacher Controls Panel -->
 <div id="teacherControls" style="display: none;" class="container mx-auto px-4 py-4">
     <div class="bg-amber-50 border-2 border-amber-300 rounded-xl p-4">
         <div class="flex items-center justify-between flex-wrap gap-3">
@@ -307,10 +340,11 @@
                 <button onclick="lockAllLessons()" class="bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold hover:bg-red-700 transition">🔒 Lock All (Keep L2)</button>
             </div>
         </div>
+        <p class="text-xs text-amber-700 mt-2">💡 Tip: Any changes you make here will instantly reflect on all students' browsers (if they have this page open).</p>
     </div>
 </div>
 
-<!-- Modules Section -->
+<!-- Course Modules Grid -->
 <section id="modules" class="py-12 bg-slate-100">
     <div class="container mx-auto px-4">
         <h2 class="text-2xl md:text-3xl font-bold text-center mb-4 text-indigo-600">📘 Course Modules</h2>
@@ -318,7 +352,7 @@
             Complete each lesson to unlock the next one. Your progress is saved automatically.
         </p>
         <div id="modulesGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto"></div>
-        <p class="text-center text-slate-500 mt-6 text-sm">Complete each lesson to unlock the next one. Your progress is saved in your browser.</p>
+        <p class="text-center text-slate-500 mt-6 text-sm">✅ After finishing a lesson, click "Mark as Complete" inside that lesson page. Progress syncs across all devices.</p>
     </div>
 </section>
 
@@ -327,7 +361,6 @@
     <div class="container mx-auto px-4">
         <h2 class="text-3xl md:text-4xl font-bold text-center mb-4 text-indigo-600">👥 About This Asynchronous Class</h2>
         <p class="text-center text-slate-600 mb-12 max-w-2xl mx-auto">A collaborative project for Purposive Communication</p>
-        
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
             <div class="team-card bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 shadow-lg text-center">
                 <div class="w-24 h-24 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full mx-auto mb-4 flex items-center justify-center">
@@ -370,11 +403,8 @@
                 <p class="text-sm text-slate-600">Content & design contributor</p>
             </div>
         </div>
-        
         <div class="text-center mt-10 bg-indigo-50 p-6 rounded-2xl max-w-2xl mx-auto">
-            <p class="text-slate-700">
-                <span class="font-bold text-indigo-600">📘 About this project:</span> This asynchronous class website was created to provide an engaging, self-paced learning experience for Purposive Communication. Your progress is automatically saved. Complete each lesson to unlock the next one!
-            </p>
+            <p class="text-slate-700"><span class="font-bold text-indigo-600">📘 About this project:</span> This asynchronous class website was created to provide an engaging, self-paced learning experience for Purposive Communication. Your progress is saved automatically. Complete each lesson to unlock the next one!</p>
         </div>
     </div>
 </section>
@@ -387,18 +417,12 @@
 </footer>
 
 <script>
-    // Set nav label
-    document.getElementById('navUserLabel').textContent = isTeacher ? '👩‍🏫 Teacher Mode' : '👨‍🎓 ' + userName;
-    document.getElementById('heroWelcome').textContent = 'Welcome, ' + userName + '! Click a module below to begin.';
-
-    // Show teacher controls
-    if (isTeacher) {
-        document.getElementById('teacherControls').style.display = 'block';
-    }
-
-    // Initial render
-    renderModules();
-    lucide.createIcons();
+    // Expose functions globally so inline buttons work
+    window.toggleLesson = toggleLesson;
+    window.unlockAllLessons = unlockAllLessons;
+    window.lockAllLessons = lockAllLessons;
+    window.logout = logout;
+    window.markCompleted = markCompleted;
 </script>
 </body>
 </html>
