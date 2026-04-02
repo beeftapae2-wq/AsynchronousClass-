@@ -45,12 +45,11 @@
             border-color: #8b5cf6;
         }
         
-        /* Canva embed responsive container */
         .canva-container {
             position: relative;
             width: 100%;
             height: 0;
-            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            padding-bottom: 56.25%;
             overflow: hidden;
             border-radius: 16px;
             background: white;
@@ -134,7 +133,6 @@
             </div>
             
             <div class="grid md:grid-cols-2 gap-6">
-                <!-- Manuscript -->
                 <div class="mode-card bg-white rounded-xl shadow-md p-6 hover:shadow-lg">
                     <div class="flex items-center gap-3 mb-3">
                         <div class="bg-blue-100 p-2 rounded-lg">
@@ -146,7 +144,6 @@
                     <p class="text-slate-600 text-sm italic">Challenge: Naturalness and eye contact may diminish because the speaker’s eyes travel between page and audience.</p>
                 </div>
                 
-                <!-- Memorized -->
                 <div class="mode-card bg-white rounded-xl shadow-md p-6 hover:shadow-lg">
                     <div class="flex items-center gap-3 mb-3">
                         <div class="bg-green-100 p-2 rounded-lg">
@@ -158,7 +155,6 @@
                     <p class="text-slate-600 text-sm italic">Risk: Loss of naturalness. The worst experience is forgetting lines and failing to transition smoothly to another mode.</p>
                 </div>
                 
-                <!-- Extemporaneous -->
                 <div class="mode-card bg-white rounded-xl shadow-md p-6 hover:shadow-lg">
                     <div class="flex items-center gap-3 mb-3">
                         <div class="bg-amber-100 p-2 rounded-lg">
@@ -170,7 +166,6 @@
                     <p class="text-slate-600 text-sm italic">Requires spontaneity, good organization, and adaptability.</p>
                 </div>
                 
-                <!-- Impromptu -->
                 <div class="mode-card bg-white rounded-xl shadow-md p-6 hover:shadow-lg">
                     <div class="flex items-center gap-3 mb-3">
                         <div class="bg-red-100 p-2 rounded-lg">
@@ -184,7 +179,7 @@
             </div>
         </section>
         
-        <!-- Video Samples Section (Updated with provided YouTube links) -->
+        <!-- Video Samples Section -->
         <section class="mb-12">
             <div class="flex items-center space-x-3 mb-6">
                 <div class="bg-red-100 p-2 rounded-lg">
@@ -194,11 +189,10 @@
             </div>
             
             <div class="grid md:grid-cols-2 gap-6">
-                <!-- Manuscript Reading Sample (Video 1) -->
                 <div class="bg-white rounded-xl shadow-md overflow-hidden">
                     <div class="video-container">
                         <iframe src="https://www.youtube.com/embed/CGL2DZ9uznQ" 
-                                title="Manuscript Speech Sample - Public Speaking Example" 
+                                title="Manuscript Speech Sample" 
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                 allowfullscreen>
                         </iframe>
@@ -209,11 +203,10 @@
                     </div>
                 </div>
                 
-                <!-- Memorized Speech Sample (Video 2) -->
                 <div class="bg-white rounded-xl shadow-md overflow-hidden">
                     <div class="video-container">
                         <iframe src="https://www.youtube.com/embed/66gwKVVsZdo" 
-                                title="Memorized Speech Sample - Oratorical Delivery" 
+                                title="Memorized Speech Sample" 
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                 allowfullscreen>
                         </iframe>
@@ -224,11 +217,10 @@
                     </div>
                 </div>
                 
-                <!-- Extemporaneous Sample (Video 3) -->
                 <div class="bg-white rounded-xl shadow-md overflow-hidden">
                     <div class="video-container">
                         <iframe src="https://www.youtube.com/embed/lzoUu1fDmWE" 
-                                title="Extemporaneous Speech Sample - Conversational Style" 
+                                title="Extemporaneous Speech Sample" 
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                 allowfullscreen>
                         </iframe>
@@ -239,11 +231,10 @@
                     </div>
                 </div>
                 
-                <!-- Impromptu Sample (Video 4) -->
                 <div class="bg-white rounded-xl shadow-md overflow-hidden">
                     <div class="video-container">
                         <iframe src="https://www.youtube.com/embed/KVilJUulnjQ" 
-                                title="Impromptu Speech Sample - Spontaneous Response" 
+                                title="Impromptu Speech Sample" 
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                 allowfullscreen>
                         </iframe>
@@ -268,11 +259,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full bg-white rounded-xl shadow-sm text-sm">
                     <thead class="bg-slate-200">
-                        <tr>
-                            <th class="px-4 py-3 text-left">Mode</th>
-                            <th class="px-4 py-3 text-left">Best Used For</th>
-                            <th class="px-4 py-3 text-left">Key Challenge</th>
-                        </tr>
+                        <tr><th class="px-4 py-3 text-left">Mode</th><th class="px-4 py-3 text-left">Best Used For</th><th class="px-4 py-3 text-left">Key Challenge</th></tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         <tr><td class="px-4 py-3 font-medium">Manuscript</td><td class="px-4 py-3">Long, complex, or highly detailed messages</td><td class="px-4 py-3">Maintaining eye contact and naturalness</td></tr>
@@ -284,17 +271,27 @@
             </div>
         </section>
         
-        <!-- Lesson Navigation -->
-        <div class="flex justify-between items-center pt-8 border-t border-slate-200">
+        <!-- ✅ MARK AS COMPLETE BUTTON + NAVIGATION -->
+        <div class="flex flex-wrap justify-between items-center gap-4 pt-8 border-t border-slate-200">
             <a href="index.html" class="flex items-center space-x-2 bg-blue-600 text-white px-6 py-3 rounded-full font-bold hover:bg-blue-700 transition action-btn">
                 <i data-lucide="arrow-left" class="w-5 h-5"></i>
                 <span>← Home</span>
             </a>
-            <div class="flex items-center space-x-2 text-slate-400 px-6 py-3">
+            
+            <!-- MARK AS COMPLETE BUTTON -->
+            <button id="completeLessonBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-full font-bold transition action-btn flex items-center gap-2 shadow-md">
+                <i data-lucide="check-circle" class="w-5 h-5"></i>
+                <span>✅ Mark Lesson as Complete</span>
+            </button>
+            
+            <div class="text-slate-400 text-sm flex items-center gap-2">
                 <i data-lucide="lock" class="w-4 h-4"></i>
-                <span class="text-sm">Lesson 3: Coming Soon (Locked)</span>
+                <span>Lesson 3 will unlock after completion</span>
             </div>
         </div>
+        
+        <!-- Extra info -->
+        <p class="text-center text-xs text-slate-500 mt-6">Completing this lesson will save your progress and unlock Lesson 3: Making Inquiries.</p>
     </main>
     
     <footer class="gradient-bg text-white py-8 mt-12">
@@ -306,6 +303,34 @@
     
     <script>
         lucide.createIcons();
+        
+        // ========== MARK COMPLETE FUNCTIONALITY ==========
+        document.getElementById('completeLessonBtn').addEventListener('click', function() {
+            // 1. Get current lessonAccess from localStorage (or initialize)
+            let lessonAccess = JSON.parse(localStorage.getItem('lessonAccess')) || {};
+            
+            // 2. Ensure lesson2 entry exists
+            if (!lessonAccess.lesson2) {
+                lessonAccess.lesson2 = { unlocked: true, completed: false };
+            }
+            
+            // 3. Mark lesson2 as completed
+            lessonAccess.lesson2.completed = true;
+            
+            // 4. Auto-unlock lesson3 (next lesson)
+            if (!lessonAccess.lesson3) {
+                lessonAccess.lesson3 = { unlocked: true, completed: false };
+            } else {
+                lessonAccess.lesson3.unlocked = true;
+            }
+            
+            // 5. Save back to localStorage
+            localStorage.setItem('lessonAccess', JSON.stringify(lessonAccess));
+            
+            // 6. Show confirmation and redirect to index with completion flag
+            alert('✅ Lesson 2 completed! Lesson 3 is now unlocked. Returning to dashboard...');
+            window.location.href = 'index.html?complete=lesson2';
+        });
     </script>
 </body>
 </html>
