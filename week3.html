@@ -12,6 +12,8 @@
         h1, h2, h3, h4, h5, h6 { font-family: 'Nunito', sans-serif; }
         .gradient-bg { background: linear-gradient(135deg, #0f766e 0%, #14b8a6 50%, #f59e0b 100%); }
         .bg-white20 { background-color: rgba(255, 255, 255, 0.2); }
+        .action-btn { transition: all 0.3s ease; }
+        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         .canva-container {
             position: relative;
             width: 100%;
@@ -31,7 +33,6 @@
             height: 100%;
             border: none;
         }
-        /* Email mockup styles */
         .email-mockup-container {
             background-color: #f1f5f9;
             border-radius: 12px;
@@ -150,13 +151,13 @@
             <p class="text-center text-sm text-gray-500 mt-2">Interactive presentation — click for full screen</p>
         </div>
 
-        <!-- What is an Inquiry Letter - SHORT -->
+        <!-- What is an Inquiry Letter -->
         <section class="mb-6">
             <h2 class="text-xl font-bold text-slate-800 mb-2">📝 What is an Inquiry Letter?</h2>
             <p class="text-slate-700 text-sm">A letter written to request information about products, services, internships, scholarships, or job vacancies. May also be done via email or interview. All modes require correctness, clarity, conciseness, and courtesy.</p>
         </section>
 
-        <!-- Letter Parts - SHORT -->
+        <!-- Letter Parts -->
         <section class="mb-6">
             <h2 class="text-xl font-bold text-slate-800 mb-2">📋 Letter of Inquiry - Basic Parts</h2>
             <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm text-slate-700 bg-slate-50 p-3 rounded-lg">
@@ -197,7 +198,7 @@
             </div>
         </section>
 
-        <!-- Email Tips - SHORT -->
+        <!-- Email Tips -->
         <section class="mb-6">
             <h2 class="text-xl font-bold text-slate-800 mb-2">📧 Email Inquiries</h2>
             <ul class="list-disc pl-5 text-sm text-slate-700 mb-3">
@@ -239,7 +240,7 @@
             </div>
         </section>
 
-        <!-- Interview - SHORT -->
+        <!-- Interview as Inquiry -->
         <section class="mb-6">
             <h2 class="text-xl font-bold text-slate-800 mb-2">🎤 Interview as Inquiry</h2>
             <div class="grid md:grid-cols-3 gap-3 text-sm">
@@ -269,12 +270,26 @@
                 </div>
             </div>
         </section>
-        <!-- Navigation -->
-        <div class="flex justify-between items-center pt-6 border-t border-slate-200">
-            <a href="lesson2.html" class="flex items-center gap-2 bg-slate-600 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-slate-700 transition">← Lesson 2</a>
-            <span class="text-xs text-slate-400">Lesson 3: Making Inquiries</span>
-            <a href="lesson4.html" class="flex items-center gap-2 bg-slate-600 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-slate-700 transition">Lesson 4 →</a>
+
+        <!-- MARK AS COMPLETE BUTTON + NAVIGATION -->
+        <div class="flex flex-wrap justify-between items-center gap-4 pt-6 border-t border-slate-200">
+            <a href="week2.html" class="flex items-center gap-2 bg-slate-600 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-slate-700 transition action-btn">
+                ← Lesson 2
+            </a>
+            
+            <!-- MARK AS COMPLETE BUTTON -->
+            <button id="completeLessonBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-full font-bold transition action-btn flex items-center gap-2 shadow-md">
+                <i data-lucide="check-circle" class="w-5 h-5"></i>
+                <span>✅ Mark Lesson as Complete</span>
+            </button>
+            
+            <div class="text-slate-400 text-sm flex items-center gap-2">
+                <i data-lucide="lock" class="w-4 h-4"></i>
+                <span>Lesson 4 will unlock after completion</span>
+            </div>
         </div>
+        
+        <p class="text-center text-xs text-slate-500 mt-6">Completing this lesson will save your progress and unlock Lesson 4: Communication for Teachers (Storytelling).</p>
     </main>
 
     <footer class="gradient-bg text-white py-5 mt-8">
@@ -285,6 +300,34 @@
 
     <script>
         lucide.createIcons();
+        
+        // ========== MARK COMPLETE FUNCTIONALITY ==========
+        document.getElementById('completeLessonBtn').addEventListener('click', function() {
+            // 1. Get current lessonAccess from localStorage (or initialize)
+            let lessonAccess = JSON.parse(localStorage.getItem('lessonAccess')) || {};
+            
+            // 2. Ensure lesson3 entry exists
+            if (!lessonAccess.lesson3) {
+                lessonAccess.lesson3 = { unlocked: true, completed: false };
+            }
+            
+            // 3. Mark lesson3 as completed
+            lessonAccess.lesson3.completed = true;
+            
+            // 4. Auto-unlock lesson4 (next lesson)
+            if (!lessonAccess.lesson4) {
+                lessonAccess.lesson4 = { unlocked: true, completed: false };
+            } else {
+                lessonAccess.lesson4.unlocked = true;
+            }
+            
+            // 5. Save back to localStorage
+            localStorage.setItem('lessonAccess', JSON.stringify(lessonAccess));
+            
+            // 6. Show confirmation and redirect to index with completion flag
+            alert('✅ Lesson 3 completed! Lesson 4 is now unlocked. Returning to dashboard...');
+            window.location.href = 'index.html?complete=lesson3';
+        });
     </script>
 </body>
 </html>
