@@ -34,14 +34,14 @@
             </div>
             
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Access Code</label>
                 <div class="relative">
-                    <i data-lucide="badge-check" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                    <select id="role" class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
-                        <option value="student">👨‍🎓 Student</option>
-                        <option value="teacher">👩‍🏫 Teacher</option>
-                    </select>
+                    <i data-lucide="key" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                    <input type="password" id="accessCode" required 
+                           class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                           placeholder="Enter access code">
                 </div>
+                <p class="text-xs text-gray-400 mt-1">Access code: purcom2026</p>
             </div>
             
             <button type="submit" 
@@ -52,7 +52,7 @@
         </form>
         
         <p class="text-center text-xs text-gray-500 mt-6">
-            Demo: Student or Teacher mode. Progress is saved in your browser.
+            Enter the access code provided by your instructor to join the class.
         </p>
     </div>
     
@@ -62,21 +62,26 @@
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const fullName = document.getElementById('fullName').value.trim();
-            const role = document.getElementById('role').value;
+            const accessCode = document.getElementById('accessCode').value.trim();
             
             if (!fullName) {
-                alert('Please enter your name');
+                alert('Please enter your full name');
                 return;
             }
             
-            // Store user session
+            // Check access code
+            if (accessCode !== 'purcom2026') {
+                alert('Invalid access code. Please try again.');
+                return;
+            }
+            
+            // Store user session (role is always student)
             localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('userRole', role);
+            localStorage.setItem('userRole', 'student');
             localStorage.setItem('userName', fullName);
             
-            // Initialize lesson access if not exists (preserve existing)
+            // Initialize lesson access if not exists
             if (!localStorage.getItem('lessonAccess')) {
-                // Default: lesson2 unlocked, others locked
                 const defaultAccess = {
                     lesson2: { unlocked: true, completed: false },
                     lesson3: { unlocked: false, completed: false },
@@ -89,6 +94,7 @@
                 localStorage.setItem('lessonAccess', JSON.stringify(defaultAccess));
             }
             
+            // Redirect to dashboard (index.html or dashboard.html - adjust if needed)
             window.location.href = 'index.html';
         });
     </script>
