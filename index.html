@@ -22,29 +22,15 @@
 <body class="bg-slate-50 text-slate-800">
 
 <script>
-    // ============ AUTO-LOGIN (no separate login.html needed) ============
-    // Check if user already has a session
-    let isLoggedIn = localStorage.getItem('isLoggedIn');
-    let userRole = localStorage.getItem('userRole');
-    let userName = localStorage.getItem('userName');
-
-    // If no session, create a default student session
-    if (!isLoggedIn) {
-        // Allow teacher mode by adding ?teacher to URL (for demo)
-        const urlParams = new URLSearchParams(window.location.search);
-        const isTeacherMode = urlParams.has('teacher');
-        userRole = isTeacherMode ? 'teacher' : 'student';
-        userName = isTeacherMode ? 'Teacher' : 'Student';
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('userRole', userRole);
-        localStorage.setItem('userName', userName);
-        isLoggedIn = true;
-        // Remove param from URL to keep it clean
-        if (isTeacherMode) {
-            window.history.replaceState({}, document.title, window.location.pathname);
-        }
+    // ============ AUTHENTICATION CHECK ============
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const userRole = localStorage.getItem('userRole');
+    const userName = localStorage.getItem('userName');
+    
+    if (!isLoggedIn || !userName) {
+        window.location.href = 'login.html';
     }
-
+    
     const isTeacher = (userRole === 'teacher');
 
     // ============ LESSON CONFIG ============
@@ -66,7 +52,7 @@
             desc: 'Letters, emails, and interviews — asking for information professionally.',
             icon: 'help-circle',
             gradient: 'from-emerald-400 to-teal-500',
-            link: 'week3.html',          // ✅ Your existing Lesson 3 file
+            link: 'week3.html',
             defaultUnlocked: false
         },
         {
@@ -184,7 +170,7 @@
 
     function logout() {
         localStorage.clear();
-        location.reload();  // Re-initializes as a new student
+        window.location.href = 'login.html';
     }
 
     // ============ RENDER MODULES ============
@@ -275,7 +261,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         checkCompletionParam();
         renderModules();
-        document.getElementById('navUserLabel').textContent = isTeacher ? '👩‍🏫 Teacher Mode' : '👨‍🎓 ' + userName;
+        document.getElementById('navUserLabel').textContent = isTeacher ? '👩‍🏫 Teacher: ' + userName : '👨‍🎓 Student: ' + userName;
         document.getElementById('heroWelcome').textContent = `Welcome, ${userName}! Click a module below to begin.`;
         if (isTeacher) document.getElementById('teacherControls').style.display = 'block';
     });
@@ -292,7 +278,7 @@
             <div class="flex items-center gap-3">
                 <span class="text-sm bg-white/20 px-3 py-1 rounded-full" id="navUserLabel"></span>
                 <button onclick="logout()" class="bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-sm transition flex items-center gap-1">
-                    <i data-lucide="log-out" class="w-4 h-4"></i> Switch Account
+                    <i data-lucide="log-out" class="w-4 h-4"></i> Logout
                 </button>
             </div>
         </div>
