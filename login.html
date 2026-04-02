@@ -5,275 +5,91 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | Purposive Communication</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
-        body { font-family: 'Nunito', sans-serif; }
-        .gradient-bg { background: linear-gradient(135deg, #0f766e 0%, #14b8a6 50%, #f59e0b 100%); }
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 44px;
-            height: 24px;
-        }
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #cbd5e1;
-            transition: 0.3s;
-            border-radius: 24px;
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: 0.3s;
-            border-radius: 50%;
-        }
-        input:checked + .slider {
-            background-color: #14b8a6;
-        }
-        input:checked + .slider:before {
-            transform: translateX(20px);
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Open+Sans:wght@400;600;700&display=swap');
+        body { font-family: 'Open Sans', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .login-card { backdrop-filter: blur(10px); background: rgba(255,255,255,0.95); }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4" style="background: linear-gradient(135deg, #0f766e 0%, #14b8a6 50%, #f59e0b 100%);">
-    
-    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
-        <!-- Header -->
-        <div class="gradient-bg text-white p-6 text-center">
-            <div class="inline-block p-3 bg-white/20 rounded-full mb-3">
-                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                </svg>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="login-card rounded-2xl shadow-2xl max-w-md w-full p-8 transition-all duration-300">
+        <div class="text-center mb-6">
+            <div class="inline-block p-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full mb-3">
+                <i data-lucide="message-square" class="w-10 h-10 text-white"></i>
             </div>
-            <h1 class="text-2xl font-bold">Purposive Communication</h1>
-            <p class="text-sm opacity-90 mt-1">Asynchronous Class Portal</p>
+            <h1 class="text-2xl font-bold text-gray-800">Purposive Communication</h1>
+            <p class="text-gray-500 text-sm mt-1">Asynchronous Class Login</p>
         </div>
         
-        <!-- Login Form -->
-        <div class="p-6">
-            <!-- Role Selection -->
-            <div class="flex gap-3 mb-6">
-                <button id="teacherBtn" class="flex-1 py-2 rounded-lg font-semibold transition border-2 border-gray-200 bg-gray-100 text-gray-600">
-                    👩‍🏫 Teacher
-                </button>
-                <button id="studentBtn" class="flex-1 py-2 rounded-lg font-semibold transition border-2 border-teal-500 bg-teal-50 text-teal-700">
-                    👨‍🎓 Student
-                </button>
+        <form id="loginForm" class="space-y-5">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                <div class="relative">
+                    <i data-lucide="user" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                    <input type="text" id="fullName" required 
+                           class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                           placeholder="e.g., Juan Dela Cruz">
+                </div>
             </div>
             
-            <div id="errorMsg" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-lg mb-4 text-sm"></div>
-            
-            <!-- Teacher Login Fields -->
-            <div id="teacherLogin" style="display: none;">
-                <div class="mb-4">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
-                    <input type="email" id="teacherEmail" placeholder="Enter your email" 
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                <div class="relative">
+                    <i data-lucide="badge-check" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                    <select id="role" class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                        <option value="student">👨‍🎓 Student</option>
+                        <option value="teacher">👩‍🏫 Teacher</option>
+                    </select>
                 </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Password</label>
-                    <input type="password" id="teacherPassword" placeholder="Enter your password" 
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
-                </div>
-                <div class="mb-5 flex items-center justify-between">
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <div class="toggle-switch">
-                            <input type="checkbox" id="teacherKeepLoggedIn">
-                            <span class="slider"></span>
-                        </div>
-                        <span class="text-sm text-gray-600">Keep me logged in</span>
-                    </label>
-                </div>
-                <button onclick="teacherLogin()" class="w-full bg-teal-600 text-white py-3 rounded-lg font-bold hover:bg-teal-700 transition">
-                    Login as Teacher
-                </button>
             </div>
             
-            <!-- Student Login Fields -->
-            <div id="studentLogin">
-                <div class="mb-4">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Student Name</label>
-                    <input type="text" id="studentName" placeholder="Enter your full name" 
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Access Code</label>
-                    <input type="password" id="studentCode" placeholder="Enter access code" 
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
-                </div>
-                <div class="mb-5 flex items-center justify-between">
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <div class="toggle-switch">
-                            <input type="checkbox" id="studentKeepLoggedIn">
-                            <span class="slider"></span>
-                        </div>
-                        <span class="text-sm text-gray-600">Keep me logged in</span>
-                    </label>
-                </div>
-                <button onclick="studentLogin()" class="w-full bg-teal-600 text-white py-3 rounded-lg font-bold hover:bg-teal-700 transition">
-                    Login as Student
-                </button>
-            </div>
-            
-            <p class="text-center text-xs text-gray-400 mt-4">
-                Students: Use code <span class="font-bold text-teal-600">PURCOM2024</span>
-            </p>
-        </div>
+            <button type="submit" 
+                    class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold py-2 rounded-lg transition duration-200 flex items-center justify-center gap-2">
+                <i data-lucide="log-in" class="w-5 h-5"></i>
+                <span>Enter Class</span>
+            </button>
+        </form>
+        
+        <p class="text-center text-xs text-gray-500 mt-6">
+            Demo: Student or Teacher mode. Progress is saved in your browser.
+        </p>
     </div>
-
+    
     <script>
-        // ============ TEACHER CREDENTIALS ============
-        const TEACHER_CREDENTIALS = {
-            email: "roemtuparan@wvsu.edu.ph",
-            password: "@roemtuparanwvsu"
-        };
+        lucide.createIcons();
         
-        // ============ ONE GENERAL STUDENT CODE ============
-        const STUDENT_CODE = "PURCOM2024";
-        
-        // ============ CHECK FOR EXISTING SESSION (Keep Me Logged In) ============
-        function checkSavedSession() {
-            const savedSession = localStorage.getItem('purcom_session');
-            if (savedSession) {
-                try {
-                    const session = JSON.parse(savedSession);
-                    const now = Date.now();
-                    if (session.expiry > now) {
-                        // Session is still valid
-                        localStorage.setItem('isLoggedIn', 'true');
-                        localStorage.setItem('userRole', session.role);
-                        localStorage.setItem('userName', session.name);
-                        if (session.email) localStorage.setItem('userEmail', session.email);
-                        if (session.code) localStorage.setItem('accessCode', session.code);
-                        window.location.href = 'index.html';
-                    } else {
-                        // Session expired, clear it
-                        localStorage.removeItem('purcom_session');
-                    }
-                } catch(e) {
-                    localStorage.removeItem('purcom_session');
-                }
-            }
-        }
-        
-        // Check for saved session on page load
-        checkSavedSession();
-        
-        // Teacher Login Function
-        function teacherLogin() {
-            const teacherEmail = document.getElementById('teacherEmail').value.trim();
-            const teacherPassword = document.getElementById('teacherPassword').value.trim();
-            const keepLoggedIn = document.getElementById('teacherKeepLoggedIn').checked;
-            const errorDiv = document.getElementById('errorMsg');
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const fullName = document.getElementById('fullName').value.trim();
+            const role = document.getElementById('role').value;
             
-            if (teacherEmail === TEACHER_CREDENTIALS.email && teacherPassword === TEACHER_CREDENTIALS.password) {
-                const sessionData = {
-                    role: 'teacher',
-                    name: 'Prof. Roem Tuparan',
-                    email: teacherEmail,
-                    expiry: keepLoggedIn ? Date.now() + (30 * 24 * 60 * 60 * 1000) : Date.now() + (24 * 60 * 60 * 1000)
-                };
-                
-                if (keepLoggedIn) {
-                    localStorage.setItem('purcom_session', JSON.stringify(sessionData));
-                }
-                
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('userRole', 'teacher');
-                localStorage.setItem('userName', 'Prof. Roem Tuparan');
-                localStorage.setItem('userEmail', teacherEmail);
-                window.location.href = 'index.html';
-            } else {
-                errorDiv.classList.remove('hidden');
-                errorDiv.textContent = '❌ Invalid email or password. Please try again.';
-                setTimeout(() => errorDiv.classList.add('hidden'), 3000);
-            }
-        }
-        
-        // Student Login Function
-        function studentLogin() {
-            const studentName = document.getElementById('studentName').value.trim();
-            const studentCode = document.getElementById('studentCode').value.trim();
-            const keepLoggedIn = document.getElementById('studentKeepLoggedIn').checked;
-            const errorDiv = document.getElementById('errorMsg');
-            
-            if (studentName === '') {
-                errorDiv.classList.remove('hidden');
-                errorDiv.textContent = '❌ Please enter your name.';
-                setTimeout(() => errorDiv.classList.add('hidden'), 3000);
+            if (!fullName) {
+                alert('Please enter your name');
                 return;
             }
             
-            if (studentCode === STUDENT_CODE) {
-                const sessionData = {
-                    role: 'student',
-                    name: studentName,
-                    code: studentCode,
-                    expiry: keepLoggedIn ? Date.now() + (30 * 24 * 60 * 60 * 1000) : Date.now() + (24 * 60 * 60 * 1000)
+            // Store user session
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userRole', role);
+            localStorage.setItem('userName', fullName);
+            
+            // Initialize lesson access if not exists (preserve existing)
+            if (!localStorage.getItem('lessonAccess')) {
+                // Default: lesson2 unlocked, others locked
+                const defaultAccess = {
+                    lesson2: { unlocked: true, completed: false },
+                    lesson3: { unlocked: false, completed: false },
+                    lesson4: { unlocked: false, completed: false },
+                    lesson5: { unlocked: false, completed: false },
+                    lesson6: { unlocked: false, completed: false },
+                    lesson7: { unlocked: false, completed: false },
+                    lesson8: { unlocked: false, completed: false }
                 };
-                
-                if (keepLoggedIn) {
-                    localStorage.setItem('purcom_session', JSON.stringify(sessionData));
-                }
-                
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('userRole', 'student');
-                localStorage.setItem('userName', studentName);
-                localStorage.setItem('accessCode', studentCode);
-                window.location.href = 'index.html';
-            } else {
-                errorDiv.classList.remove('hidden');
-                errorDiv.textContent = '❌ Invalid Access Code. Use: PURCOM2024';
-                setTimeout(() => errorDiv.classList.add('hidden'), 3000);
+                localStorage.setItem('lessonAccess', JSON.stringify(defaultAccess));
             }
-        }
-        
-        // Toggle between Teacher and Student login
-        const teacherBtn = document.getElementById('teacherBtn');
-        const studentBtn = document.getElementById('studentBtn');
-        const teacherLoginDiv = document.getElementById('teacherLogin');
-        const studentLoginDiv = document.getElementById('studentLogin');
-        
-        teacherBtn.addEventListener('click', () => {
-            teacherBtn.classList.remove('bg-gray-100', 'text-gray-600', 'border-gray-200');
-            teacherBtn.classList.add('bg-teal-50', 'text-teal-700', 'border-teal-500');
-            studentBtn.classList.remove('bg-teal-50', 'text-teal-700', 'border-teal-500');
-            studentBtn.classList.add('bg-gray-100', 'text-gray-600', 'border-gray-200');
-            teacherLoginDiv.style.display = 'block';
-            studentLoginDiv.style.display = 'none';
-            document.getElementById('errorMsg').classList.add('hidden');
-        });
-        
-        studentBtn.addEventListener('click', () => {
-            studentBtn.classList.remove('bg-gray-100', 'text-gray-600', 'border-gray-200');
-            studentBtn.classList.add('bg-teal-50', 'text-teal-700', 'border-teal-500');
-            teacherBtn.classList.remove('bg-teal-50', 'text-teal-700', 'border-teal-500');
-            teacherBtn.classList.add('bg-gray-100', 'text-gray-600', 'border-gray-200');
-            teacherLoginDiv.style.display = 'none';
-            studentLoginDiv.style.display = 'block';
-            document.getElementById('errorMsg').classList.add('hidden');
-        });
-        
-        document.getElementById('teacherPassword')?.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') teacherLogin();
-        });
-        document.getElementById('studentCode')?.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') studentLogin();
+            
+            window.location.href = 'index.html';
         });
     </script>
 </body>
