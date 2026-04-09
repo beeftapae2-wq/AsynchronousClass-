@@ -51,6 +51,10 @@
         const classDocRef = () => doc(db, 'classConfig', 'lessonAccess');
 
         // ============ LOAD FROM FIRESTORE ============
+        // Merges teacher-controlled unlock state (classConfig) with student completion (users doc).
+        // These are now two completely separate concerns:
+        //   - classConfig  → teacher controls which lessons are VISIBLE/OPEN for the whole class
+        //   - users/{id}   → tracks which lessons THIS student has completed
         async function loadProgressFromFirestore() {
             try {
                 showLoading(true);
@@ -90,8 +94,8 @@
             }
         }
 
-        // ============ SAVE UNLOCK TO FIRESTORE (classConfig) ============
-        // This affects ALL students — used by teacher controls AND student completion
+        // ============ TEACHER: SAVE UNLOCK TO FIRESTORE (classConfig) ============
+        // Only teachers call this. It controls which lessons are open for the whole class.
         async function saveUnlockToFirestore(lessonAccess) {
             try {
                 const classData = {};
@@ -104,7 +108,9 @@
             }
         }
 
-        // ============ SAVE COMPLETION TO FIRESTORE (per student) ============
+        // ============ STUDENT: SAVE COMPLETION TO FIRESTORE (per student only) ============
+        // FIX: Students only ever write to their OWN progress doc.
+        // They no longer touch classConfig — that's the teacher's domain.
         async function saveCompletionToFirestore(lessonAccess) {
             try {
                 const userData = {};
@@ -155,37 +161,27 @@
             await saveUnlockToFirestore(lessonAccess);
         };
 
-        // ============ MARK COMPLETED ============
-        // THE KEY FIX: also saves unlock of next lesson to classConfig in Firestore
+        // ============ MARK COMPLETED (called via ?complete= param from lesson pages) ============
+        // FIX: This now ONLY saves the student's personal completion — it no longer
+        // writes to classConfig. Unlock state is exclusively teacher-controlled.
+        // Students complete lessons; teachers open lessons. These are separate actions.
         window.markCompleted = async function(lessonId) {
             let lessonAccess = getLessonAccess();
             if (lessonAccess[lessonId]?.completed) return;
 
-            // Mark current lesson complete
+            // Mark current lesson as completed in local state
             if (!lessonAccess[lessonId]) lessonAccess[lessonId] = {};
             lessonAccess[lessonId].completed = true;
 
-            // Unlock next lesson
-            const lessons = lessonConfig.map(l => l.id);
-            const idx = lessons.indexOf(lessonId);
-            if (idx < lessons.length - 1) {
-                const nextId = lessons[idx + 1];
-                if (!lessonAccess[nextId]) lessonAccess[nextId] = {};
-                lessonAccess[nextId].unlocked = true;
-            }
-
-            // Save locally
+            // Update local display
             saveLessonAccessLocal(lessonAccess);
 
-            // Save completion to user's Firestore doc
+            // Save completion ONLY to the student's personal Firestore doc
+            // (NOT to classConfig — that's the teacher's domain)
             await saveCompletionToFirestore(lessonAccess);
 
-            // ✅ THE FIX: also save unlock state to classConfig so next lesson
-            // opens for this student on any device/browser
-            await saveUnlockToFirestore(lessonAccess);
-
             const title = lessonConfig.find(l => l.id === lessonId)?.title || lessonId;
-            alert(`✅ Completed "${title}"! Next lesson unlocked.`);
+            alert(`✅ Completed "${title}"! Your progress has been saved.`);
         };
 
         window.logout = function() {
@@ -245,7 +241,7 @@
                             <p class="text-slate-600 text-sm mb-3">${cfg.desc}</p>
                             <div class="flex justify-between items-center text-sm">
                                 <span class="text-slate-400 font-semibold">🔒 Locked</span>
-                                <span class="bg-slate-200 text-slate-500 px-2 py-1 rounded-full text-xs">Complete previous lesson</span>
+                                <span class="bg-slate-200 text-slate-500 px-2 py-1 rounded-full text-xs">Locked by teacher</span>
                             </div>
                         </div>
                         ${isTeacher ? `
@@ -267,6 +263,8 @@
             if (grid) grid.style.display = show ? 'none' : 'grid';
         }
 
+        // FIX: checkCompletionParam still works for lesson pages that redirect with ?complete=
+        // but markCompleted no longer touches classConfig — students only update their own progress.
         async function checkCompletionParam() {
             const urlParams = new URLSearchParams(window.location.search);
             const completeId = urlParams.get('complete');
@@ -334,6 +332,7 @@
             <div class="flex items-center gap-2">
                 <i data-lucide="settings" class="w-5 h-5 text-amber-700"></i>
                 <span class="font-bold text-amber-800">Teacher Controls:</span>
+                <span class="text-amber-700 text-sm">You control which lessons are open for the class.</span>
             </div>
             <div class="flex gap-2">
                 <button onclick="unlockAllLessons()" class="bg-green-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold">🔓 Unlock All</button>
