@@ -33,31 +33,20 @@
         }
 
         // ============ CHECK IF LESSON IS UNLOCKED ============
+        // FIX (Bug 3): Always check Firestore directly instead of trusting stale localStorage cache.
+        // The old code would allow access if the cache said unlocked, even if the teacher re-locked it.
         async function checkAccess() {
             try {
-                // First check localStorage cache
-                let lessonAccess = JSON.parse(localStorage.getItem('lessonAccess')) || {};
-                
-                // If not in cache, load from Firestore
-                if (!lessonAccess.lesson3) {
-                    const classSnap = await getDoc(doc(db, 'classConfig', 'lessonAccess'));
-                    if (classSnap.exists()) {
-                        const classData = classSnap.data();
-                        if (!classData.lesson3?.unlocked) {
-                            // Not unlocked — redirect back
-                            alert('🔒 Lesson 3 is not yet unlocked. Complete Lesson 2 first.');
-                            window.location.href = 'index.html';
-                            return;
-                        }
-                    }
-                } else if (!lessonAccess.lesson3.unlocked) {
+                const classSnap = await getDoc(doc(db, 'classConfig', 'lessonAccess'));
+                if (classSnap.exists() && !classSnap.data().lesson3?.unlocked) {
                     alert('🔒 Lesson 3 is not yet unlocked. Complete Lesson 2 first.');
                     window.location.href = 'index.html';
                     return;
                 }
+                // If Firestore says unlocked (or doc doesn't exist), allow access
             } catch (err) {
                 console.error('Access check error:', err);
-                // Allow access on error (fallback)
+                // Allow access on network error (fallback behaviour preserved)
             }
         }
 
@@ -65,22 +54,29 @@
         window.markLesson3Complete = async function() {
             const btn = document.getElementById('completeLessonBtn');
             btn.disabled = true;
+            // FIX (Bug 2): Save the full button HTML so we can restore it exactly on error,
+            // preserving the lucide icon that was being lost with innerHTML = plain-text.
+            const originalHTML = btn.innerHTML;
             btn.innerHTML = '<span>Saving...</span>';
 
             try {
-                // Load current user progress
+                // Save completion to user's own progress doc
                 const userRef = doc(db, 'users', userName, 'data', 'progress');
                 const userSnap = await getDoc(userRef);
                 let userData = userSnap.exists() ? userSnap.data() : {};
 
-                // Mark lesson3 complete, unlock lesson4
                 userData.lesson3 = { completed: true };
                 if (!userData.lesson4) userData.lesson4 = { completed: false };
 
-                // Save to Firestore
                 await setDoc(userRef, userData, { merge: true });
 
-                // Also update localStorage cache
+                // FIX (Bug 1): Also write the unlock to classConfig so it persists globally
+                // across all devices and students. Without this, lesson 4 would stay locked
+                // when loading from Firestore on a fresh device/browser.
+                const classRef = doc(db, 'classConfig', 'lessonAccess');
+                await setDoc(classRef, { lesson4: { unlocked: true } }, { merge: true });
+
+                // Update localStorage cache
                 let lessonAccess = JSON.parse(localStorage.getItem('lessonAccess')) || {};
                 if (!lessonAccess.lesson3) lessonAccess.lesson3 = {};
                 lessonAccess.lesson3.completed = true;
@@ -88,13 +84,19 @@
                 lessonAccess.lesson4.unlocked = true;
                 localStorage.setItem('lessonAccess', JSON.stringify(lessonAccess));
 
+                // FIX (Bug 4): Do NOT redirect with ?complete=lesson3 because index.html's
+                // checkCompletionParam() would call markCompleted('lesson3') again, causing
+                // redundant Firestore writes. Progress is already fully saved above.
                 alert('✅ Lesson 3 completed! Lesson 4 is now unlocked. Returning to dashboard...');
-                window.location.href = 'index.html?complete=lesson3';
+                window.location.href = 'index.html';
 
             } catch (err) {
                 console.error('Save error:', err);
                 btn.disabled = false;
-                btn.innerHTML = '✅ Mark Lesson as Complete';
+                // FIX (Bug 2): Restore the original button HTML (with icon) instead of
+                // setting plain text which stripped the lucide <i> element.
+                btn.innerHTML = originalHTML;
+                lucide.createIcons(); // re-render the icon after restoring innerHTML
                 alert('⚠️ Could not save progress. Please check your connection and try again.');
             }
         };
