@@ -6,6 +6,103 @@
     <title>Lesson 3: Making Inquiries | Purposive Communication</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBUeClSBF_9QTKQMOVh7iXQTRGZugbAyi8",
+            authDomain: "asynchronousclass-61231.firebaseapp.com",
+            projectId: "asynchronousclass-61231",
+            storageBucket: "asynchronousclass-61231.firebasestorage.app",
+            messagingSenderId: "488059356162",
+            appId: "1:488059356162:web:c6a5b9553062ae210b531b",
+            measurementId: "G-57GNQTZWZP"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // ============ AUTH CHECK ============
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        const userName = localStorage.getItem('userName');
+        if (!isLoggedIn || !userName) {
+            window.location.href = 'login.html';
+        }
+
+        // ============ CHECK IF LESSON IS UNLOCKED ============
+        async function checkAccess() {
+            try {
+                // First check localStorage cache
+                let lessonAccess = JSON.parse(localStorage.getItem('lessonAccess')) || {};
+                
+                // If not in cache, load from Firestore
+                if (!lessonAccess.lesson3) {
+                    const classSnap = await getDoc(doc(db, 'classConfig', 'lessonAccess'));
+                    if (classSnap.exists()) {
+                        const classData = classSnap.data();
+                        if (!classData.lesson3?.unlocked) {
+                            // Not unlocked — redirect back
+                            alert('🔒 Lesson 3 is not yet unlocked. Complete Lesson 2 first.');
+                            window.location.href = 'index.html';
+                            return;
+                        }
+                    }
+                } else if (!lessonAccess.lesson3.unlocked) {
+                    alert('🔒 Lesson 3 is not yet unlocked. Complete Lesson 2 first.');
+                    window.location.href = 'index.html';
+                    return;
+                }
+            } catch (err) {
+                console.error('Access check error:', err);
+                // Allow access on error (fallback)
+            }
+        }
+
+        // ============ MARK COMPLETE ============
+        window.markLesson3Complete = async function() {
+            const btn = document.getElementById('completeLessonBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span>Saving...</span>';
+
+            try {
+                // Load current user progress
+                const userRef = doc(db, 'users', userName, 'data', 'progress');
+                const userSnap = await getDoc(userRef);
+                let userData = userSnap.exists() ? userSnap.data() : {};
+
+                // Mark lesson3 complete, unlock lesson4
+                userData.lesson3 = { completed: true };
+                if (!userData.lesson4) userData.lesson4 = { completed: false };
+
+                // Save to Firestore
+                await setDoc(userRef, userData, { merge: true });
+
+                // Also update localStorage cache
+                let lessonAccess = JSON.parse(localStorage.getItem('lessonAccess')) || {};
+                if (!lessonAccess.lesson3) lessonAccess.lesson3 = {};
+                lessonAccess.lesson3.completed = true;
+                if (!lessonAccess.lesson4) lessonAccess.lesson4 = {};
+                lessonAccess.lesson4.unlocked = true;
+                localStorage.setItem('lessonAccess', JSON.stringify(lessonAccess));
+
+                alert('✅ Lesson 3 completed! Lesson 4 is now unlocked. Returning to dashboard...');
+                window.location.href = 'index.html?complete=lesson3';
+
+            } catch (err) {
+                console.error('Save error:', err);
+                btn.disabled = false;
+                btn.innerHTML = '✅ Mark Lesson as Complete';
+                alert('⚠️ Could not save progress. Please check your connection and try again.');
+            }
+        };
+
+        // Run access check on load
+        document.addEventListener('DOMContentLoaded', checkAccess);
+    </script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Open+Sans:wght@400;600;700&display=swap');
         body { font-family: 'Open Sans', sans-serif; background-color: #f8fafc; color: #1e293b; }
@@ -14,59 +111,12 @@
         .bg-white20 { background-color: rgba(255, 255, 255, 0.2); }
         .action-btn { transition: all 0.3s ease; }
         .action-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .canva-container {
-            position: relative;
-            width: 100%;
-            height: 0;
-            padding-bottom: 56.25%;
-            overflow: hidden;
-            border-radius: 12px;
-            background: white;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e2e8f0;
-        }
-        .canva-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        .email-mockup-container {
-            background-color: #f1f5f9;
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid #e2e8f0;
-        }
-        .email-card {
-            background: white;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-        .header-bar {
-            background: #f8fafc;
-            padding: 10px 16px;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: #E6F1FB;
-            color: #0C447C;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 500;
-            flex-shrink: 0;
-        }
+        .canva-container { position: relative; width: 100%; height: 0; padding-bottom: 56.25%; overflow: hidden; border-radius: 12px; background: white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
+        .canva-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        .email-mockup-container { background-color: #f1f5f9; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; }
+        .email-card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .header-bar { background: #f8fafc; padding: 10px 16px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 10px; }
+        .avatar { width: 32px; height: 32px; border-radius: 50%; background: #E6F1FB; color: #0C447C; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; flex-shrink: 0; }
         .header-name { font-weight: 500; font-size: 13px; }
         .header-time { font-size: 12px; color: #64748b; margin-left: auto; }
         .meta-table { width: 100%; border-collapse: collapse; }
@@ -78,29 +128,12 @@
         .attach-row td { color: #0c4e6e; font-size: 12px; }
         .body-area { padding: 16px 16px 8px; }
         .salutation { font-weight: 500; margin-bottom: 10px; font-size: 13px; }
-        .body-text {
-            color: #475569;
-            font-size: 12.5px;
-            line-height: 1.7;
-            margin-bottom: 10px;
-            background: #f8fafc;
-            border-radius: 8px;
-            padding: 10px 12px;
-            border: 1px dashed #cbd5e1;
-        }
+        .body-text { color: #475569; font-size: 12.5px; line-height: 1.7; margin-bottom: 10px; background: #f8fafc; border-radius: 8px; padding: 10px 12px; border: 1px dashed #cbd5e1; }
         .closing { font-size: 13px; margin-bottom: 4px; }
         .sig-name { font-weight: 500; font-size: 13px; }
         .sig-detail { font-size: 12px; color: #475569; line-height: 1.6; }
         .sig-block { border-top: 1px solid #e2e8f0; margin: 10px 0 0; padding-top: 8px; }
-        .label-pill {
-            display: inline-block;
-            font-size: 10px;
-            font-weight: 500;
-            padding: 2px 8px;
-            border-radius: 999px;
-            margin-left: 6px;
-            vertical-align: middle;
-        }
+        .label-pill { display: inline-block; font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 999px; margin-left: 6px; vertical-align: middle; }
         .pill-blue { background: #E6F1FB; color: #0C447C; }
         .pill-gray { background: #F1EFE8; color: #444441; }
         .pill-amber { background: #FAEEDA; color: #633806; }
@@ -277,8 +310,7 @@
                 ← Lesson 2
             </a>
             
-            <!-- MARK AS COMPLETE BUTTON -->
-            <button id="completeLessonBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-full font-bold transition action-btn flex items-center gap-2 shadow-md">
+            <button id="completeLessonBtn" onclick="markLesson3Complete()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-full font-bold transition action-btn flex items-center gap-2 shadow-md">
                 <i data-lucide="check-circle" class="w-5 h-5"></i>
                 <span>✅ Mark Lesson as Complete</span>
             </button>
@@ -300,34 +332,6 @@
 
     <script>
         lucide.createIcons();
-        
-        // ========== MARK COMPLETE FUNCTIONALITY ==========
-        document.getElementById('completeLessonBtn').addEventListener('click', function() {
-            // 1. Get current lessonAccess from localStorage (or initialize)
-            let lessonAccess = JSON.parse(localStorage.getItem('lessonAccess')) || {};
-            
-            // 2. Ensure lesson3 entry exists
-            if (!lessonAccess.lesson3) {
-                lessonAccess.lesson3 = { unlocked: true, completed: false };
-            }
-            
-            // 3. Mark lesson3 as completed
-            lessonAccess.lesson3.completed = true;
-            
-            // 4. Auto-unlock lesson4 (next lesson)
-            if (!lessonAccess.lesson4) {
-                lessonAccess.lesson4 = { unlocked: true, completed: false };
-            } else {
-                lessonAccess.lesson4.unlocked = true;
-            }
-            
-            // 5. Save back to localStorage
-            localStorage.setItem('lessonAccess', JSON.stringify(lessonAccess));
-            
-            // 6. Show confirmation and redirect to index with completion flag
-            alert('✅ Lesson 3 completed! Lesson 4 is now unlocked. Returning to dashboard...');
-            window.location.href = 'index.html?complete=lesson3';
-        });
     </script>
 </body>
 </html>
