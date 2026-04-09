@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storytelling | Communication for Teachers</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --ink: #1a1a2e;
+            --parchment: #fdf6ec;
+            --warm: #f5efe6;
+            --accent: #c0392b;
+            --gold: #e67e22;
+            --sage: #27ae60;
+            --sky: #2980b9;
+            --muted: #7f8c8d;
+            --card-bg: #ffffff;
+            --border: #e8ddd0;
+            --radius: 16px;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--parchment);
+            color: var(--ink);
+            line-height: 1.7;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+            line-height: 1.2;
+        }
+
+        /* NAV */
+        nav {
+            background: var(--ink);
+            padding: 0 24px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.25);
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0.85;
+            transition: opacity 0.2s;
+        }
+        nav a:hover { opacity: 1; }
+        .nav-badge {
+            background: var(--gold);
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 14px;
+            border-radius: 20px;
+        }
+
+        /* HERO */
+        .hero {
+            background: var(--ink);
+            color: #fff;
+            padding: 72px 24px 80px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 30% 60%, rgba(192,57,43,0.25) 0%, transparent 60%),
+                        radial-gradient(ellipse at 80% 20%, rgba(230,126,34,0.2) 0%, transparent 50%);
+        }
+        .hero-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255,255,255,0.12);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            backdrop-filter: blur(4px);
+            border: 1.5px solid rgba(255,255,255,0.2);
+            position: relative;
+        }
+        .hero h1 {
+            font-size: clamp(2.2rem, 6vw, 3.8rem);
+            font-weight: 900;
+            margin-bottom: 12px;
+            position: relative;
+        }
+        .hero p {
+            font-size: 1.1rem;
+            opacity: 0.75;
+            max-width: 560px;
+            margin: 0 auto;
+            position: relative;
+        }
+        .hero-tag {
+            display: inline-block;
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 14px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            position: relative;
+        }
+
+        /* MAIN LAYOUT */
+        main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+        }
+
+        /* ASSESSMENT CARDS */
+        .assess-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+        .assess-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px 20px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--ink);
+            transition: all 0.25s;
+            display: block;
+        }
+        .assess-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+            border-color: currentColor;
+        }
+        .assess-card .icon-wrap {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            color: #fff;
+        }
+        .assess-card h3 { font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+        .assess-card p { font-size: 0.8rem; color: var(--muted); margin-bottom: 14px; }
+        .assess-btn {
+            display: inline-block;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 6px 18px;
+            border-radius: 20px;
+            color: #fff;
+        }
+        .blue .icon-wrap { background: #2980b9; }
+        .blue .assess-btn { background: #2980b9; }
+        .blue:hover { color: #2980b9; border-color: #2980b9; }
+        .purple .icon-wrap { background: #8e44ad; }
+        .purple .assess-btn { background: #8e44ad; }
+        .purple:hover { color: #8e44ad; border-color: #8e44ad; }
+        .teal .icon-wrap { background: #16a085; }
+        .teal .assess-btn { background: #16a085; }
+        .teal:hover { color: #16a085; border-color: #16a085; }
+
+        /* SECTION HEADER */
+        .sec-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .sec-header .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .sec-header h2 { font-size: 1.7rem; }
+
+        /* DEFINITION BANNER */
+        .definition-banner {
+            background: var(--ink);
+            color: #fff;
+            border-radius: var(--radius);
+            padding: 36px 32px;
+            margin-bottom: 48px;
+            position: relative;
+            overflow: hidden;
+        }
+        .definition-banner::after {
+            content: '📖';
+            position: absolute;
+            right: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 5rem;
+            opacity: 0.08;
+        }
+        .definition-banner .label {
+            display: inline-block;
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 4px 12px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+        }
+        .definition-banner h2 {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+        .definition-banner p {
+            font-size: 1rem;
+            opacity: 0.82;
+            max-width: 640px;
+        }
+
+        /* CARDS */
+        .card {
+            background: var(--card-bg);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px 24px;
+            margin-bottom: 16px;
+        }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+        .card h3 {
+            font-size: 1.15rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card p { font-size: 0.92rem; color: #444; }
+
+        /* REASON CARDS */
+        .reasons { margin-bottom: 48px; }
+        .reason-card {
+            background: var(--card-bg);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px 24px 28px 80px;
+            position: relative;
+            margin-bottom: 16px;
+            transition: box-shadow 0.2s;
+        }
+        .reason-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+        .reason-num {
+            position: absolute;
+            left: 20px;
+            top: 24px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: #fff;
+        }
+        .reason-card h3 { font-size: 1.05rem; margin-bottom: 6px; }
+        .reason-card p { font-size: 0.9rem; color: #555; margin-bottom: 10px; }
+        .example-box {
+            background: var(--warm);
+            border-left: 3px solid var(--gold);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            color: #5a4a3a;
+        }
+        .example-box strong { color: var(--gold); }
+
+        /* ELEMENTS OF STORYTELLING */
+        .elements-section { margin-bottom: 48px; }
+        .elements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+        }
+        .element-card {
+            background: var(--card-bg);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 16px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .element-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        .element-icon { font-size: 2.2rem; margin-bottom: 8px; }
+        .element-card h4 { font-size: 0.9rem; font-family: 'DM Sans', sans-serif; font-weight: 700; margin-bottom: 4px; }
+        .element-card p { font-size: 0.78rem; color: var(--muted); }
+
+        /* TYPES OF STORIES */
+        .types-section { margin-bottom: 48px; }
+        .type-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 18px 20px;
+            background: var(--card-bg);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            transition: box-shadow 0.2s;
+        }
+        .type-row:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.07); }
+        .type-emoji { font-size: 2rem; flex-shrink: 0; line-height: 1; }
+        .type-row h4 { font-size: 0.95rem; font-family: 'DM Sans', sans-serif; font-weight: 700; margin-bottom: 3px; }
+        .type-row p { font-size: 0.85rem; color: #555; }
+        .type-row .tag {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 10px;
+            margin-top: 4px;
+            color: #fff;
+        }
+
+        /* TIPS SECTION */
+        .tips-section {
+            background: linear-gradient(135deg, #2c3e50, #1a1a2e);
+            border-radius: var(--radius);
+            padding: 36px 32px;
+            margin-bottom: 48px;
+            color: #fff;
+        }
+        .tips-section h2 { color: #fff; margin-bottom: 24px; }
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+        }
+        .tip-card {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 12px;
+            padding: 18px 16px;
+            backdrop-filter: blur(4px);
+        }
+        .tip-card .tip-icon { font-size: 1.8rem; margin-bottom: 8px; }
+        .tip-card h4 { font-size: 0.9rem; font-family: 'DM Sans', sans-serif; font-weight: 700; margin-bottom: 4px; }
+        .tip-card p { font-size: 0.8rem; opacity: 0.75; }
+
+        /* CLASSROOM CTA */
+        .classroom-cta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            background: linear-gradient(135deg, #1565c0, #283593);
+            color: #fff;
+            border-radius: var(--radius);
+            padding: 28px 28px;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 48px;
+        }
+        .classroom-cta:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,0.2); }
+        .classroom-cta h2 { font-size: 1.4rem; color: #fff; }
+        .classroom-cta p { opacity: 0.8; font-size: 0.9rem; }
+        .cta-btn-inner {
+            background: #fff;
+            color: #1565c0;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 10px 24px;
+            border-radius: 30px;
+            white-space: nowrap;
+        }
+
+        /* VIDEO */
+        .video-section { margin-bottom: 48px; }
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .video-card {
+            background: var(--card-bg);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+        }
+        .video-card:hover { box-shadow: 0 12px 30px rgba(0,0,0,0.1); }
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            background: #e2e8f0;
+        }
+        .video-container iframe {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .video-info { padding: 16px 18px; }
+        .video-info h3 { font-size: 1rem; font-family: 'DM Sans', sans-serif; font-weight: 700; margin-bottom: 4px; }
+        .video-info p { font-size: 0.82rem; color: var(--muted); }
+
+        /* ACTIVITY SECTION */
+        .activity-section {
+            background: #fff7ed;
+            border: 2px solid #fed7aa;
+            border-radius: var(--radius);
+            padding: 32px 28px;
+            margin-bottom: 48px;
+        }
+        .activity-section h2 { margin-bottom: 8px; }
+        .activity-section > p { font-size: 0.95rem; color: #78350f; margin-bottom: 20px; }
+        .activity-steps {
+            counter-reset: step;
+            list-style: none;
+        }
+        .activity-steps li {
+            counter-increment: step;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            margin-bottom: 14px;
+            font-size: 0.92rem;
+            color: #555;
+        }
+        .activity-steps li::before {
+            content: counter(step);
+            background: var(--gold);
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.8rem;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 26px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            text-decoration: none;
+            transition: all 0.2s;
+            margin-top: 10px;
+            margin-right: 10px;
+        }
+        .btn-gold { background: var(--gold); color: #fff; }
+        .btn-gold:hover { background: #ca6f1e; transform: translateY(-2px); }
+        .btn-sage { background: var(--sage); color: #fff; }
+        .btn-sage:hover { background: #229954; transform: translateY(-2px); }
+
+        /* LESSON NAV */
+        .lesson-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding-top: 32px;
+            border-top: 1.5px solid var(--border);
+            flex-wrap: wrap;
+        }
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--ink);
+            color: #fff;
+            padding: 12px 22px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover { background: var(--accent); transform: translateY(-2px); }
+
+        /* FOOTER */
+        footer {
+            background: var(--ink);
+            color: rgba(255,255,255,0.65);
+            text-align: center;
+            padding: 28px 16px;
+            font-size: 0.85rem;
+        }
+        footer strong { color: #fff; }
+
+        /* divider */
+        .divider { height: 1.5px; background: var(--border); margin: 0 0 48px; border: none; }
+
+        @media (max-width: 600px) {
+            .hero { padding: 48px 20px 56px; }
+            .definition-banner { padding: 28px 20px; }
+            .tips-section { padding: 28px 20px; }
+            .classroom-cta { padding: 22px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+    <a href="index.html">
+        <i data-lucide="arrow-left" style="width:18px;height:18px;"></i>
+        Back to Home
+    </a>
+    <span class="nav-badge">Week 4</span>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+    <div class="hero-icon">
+        <i data-lucide="book-open" style="width:36px;height:36px;color:#fff;"></i>
+    </div>
+    <span class="hero-tag">Communication for Teachers</span>
+    <h1>The Art of Storytelling</h1>
+    <p>How stories shape learning, spark imagination, and build connection in the classroom.</p>
+</header>
+
+<main>
+
+    <!-- ASSESSMENTS -->
+    <div class="assess-grid">
+        <a href="https://forms.gle/dS5ex4uorHjj2Fkf6" target="_blank" class="assess-card blue">
+            <div class="icon-wrap"><i data-lucide="clipboard-list" style="width:24px;height:24px;"></i></div>
+            <h3>Pre-Test</h3>
+            <p>Check your prior knowledge before the lesson</p>
+            <span class="assess-btn">Start →</span>
+        </a>
+        <a href="https://forms.gle/BTKDX8EUF4zPqqZn8" target="_blank" class="assess-card purple">
+            <div class="icon-wrap"><i data-lucide="edit-3" style="width:24px;height:24px;"></i></div>
+            <h3>Assessment</h3>
+            <p>Test your understanding of storytelling</p>
+            <span class="assess-btn">Start →</span>
+        </a>
+        <a href="https://forms.gle/v1Dwa9FQMhkhhyKH8" target="_blank" class="assess-card teal">
+            <div class="icon-wrap"><i data-lucide="message-circle" style="width:24px;height:24px;"></i></div>
+            <h3>Reflection</h3>
+            <p>Share your thoughts after the lesson</p>
+            <span class="assess-btn">Start →</span>
+        </a>
+    </div>
+
+    <!-- DEFINITION -->
+    <section class="definition-banner">
+        <span class="label">Concept Grounding</span>
+        <h2>What is Storytelling?</h2>
+        <p>Storytelling is a powerful way to communicate emotion through <strong>improvisation or embellishment</strong>. It uses language, voice, movement, and gestures to reveal images and story elements to an audience. It is used by teachers, parents, and professionals to convey messages, entertain, educate, and preserve culture. <em>(Alex, 1988 — stories play a significant role in students' growth and appreciation of literature.)</em></p>
+    </section>
+
+    <!-- ELEMENTS OF STORYTELLING -->
+    <section class="elements-section">
+        <div class="sec-header">
+            <span class="dot" style="background:var(--accent);"></span>
+            <h2>Elements of Effective Storytelling</h2>
+        </div>
+        <div class="elements-grid">
+            <div class="element-card">
+                <div class="element-icon">🗣️</div>
+                <h4>Voice</h4>
+                <p>Pitch, tone, pace, and volume to convey emotion</p>
+            </div>
+            <div class="element-card">
+                <div class="element-icon">🙌</div>
+                <h4>Gestures</h4>
+                <p>Hand and body movements that reinforce meaning</p>
+            </div>
+            <div class="element-card">
+                <div class="element-icon">👀</div>
+                <h4>Eye Contact</h4>
+                <p>Engages the audience and builds connection</p>
+            </div>
+            <div class="element-card">
+                <div class="element-icon">🎭</div>
+                <h4>Expression</h4>
+                <p>Facial changes that show character and feeling</p>
+            </div>
+            <div class="element-card">
+                <div class="element-icon">⏱️</div>
+                <h4>Pacing</h4>
+                <p>Knowing when to slow down and when to speed up</p>
+            </div>
+            <div class="element-card">
+                <div class="element-icon">🌍</div>
+                <h4>Setting Details</h4>
+                <p>Vivid descriptions that paint a mental image</p>
+            </div>
+        </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- REASONS -->
+    <section class="reasons">
+        <div class="sec-header">
+            <span class="dot" style="background:var(--gold);"></span>
+            <h2>Why Use Storytelling in Teaching?</h2>
+        </div>
+
+        <div class="reason-card">
+            <div class="reason-num" style="background:var(--accent);">1</div>
+            <h3>It Holds Attention and Motivates Learners</h3>
+            <p>Cooter (1991) and Bla (1998) noted that excitement and drama provide a context that keeps students engaged. Stories motivate, create immense interest, attract listeners, and promote communication.</p>
+            <div class="example-box">
+                <strong>📌 Classroom Example:</strong> Instead of directly stating "bullying is bad," tell the story of a student named Marco who lost his best friend because of unkind words — watch how the class leans in and listens.
+            </div>
+        </div>
+
+        <div class="reason-card">
+            <div class="reason-num" style="background:var(--gold);">2</div>
+            <h3>Stories Are a Treasure of Language and Culture</h3>
+            <p>Storytelling is one of the oldest art forms. Thousands of moral stories have been created and passed down generations. Old stories are regarded as models of language and cultural treasures — learners at various age levels can find suitable stories to read and tell.</p>
+            <div class="example-box">
+                <strong>📌 Classroom Example:</strong> Sharing the Filipino tale <em>"Si Malakas at si Maganda"</em> not only teaches Philippine mythology but also naturally exposes students to rich descriptive language and cultural pride.
+            </div>
+        </div>
+
+        <div class="reason-card">
+            <div class="reason-num" style="background:var(--sage);">3</div>
+            <h3>It Creates a Real-Life, Lively Atmosphere</h3>
+            <p>Storytelling provides a lively atmosphere and real-life environment that encourages participation. When students listen to stories, they plunge into the plots and scenes and identify themselves among the characters.</p>
+            <div class="example-box">
+                <strong>📌 Classroom Example:</strong> Telling a story about a student facing a math problem in a marketplace helps learners connect abstract lessons to real situations — they see themselves in the story.
+            </div>
+        </div>
+
+        <div class="reason-card">
+            <div class="reason-num" style="background:var(--sky);">4</div>
+            <h3>It Develops Listening and Comprehension Skills</h3>
+            <p>Actively listening to stories strengthens students' ability to sequence events, infer meaning, and recall details — all critical literacy skills they apply across subjects.</p>
+            <div class="example-box">
+                <strong>📌 Classroom Example:</strong> After telling a short fable, ask students: "What happened first? What did the character feel? What would you have done differently?" This checks comprehension without a written test.
+            </div>
+        </div>
+
+        <div class="reason-card">
+            <div class="reason-num" style="background:#8e44ad);">5</div>
+            <h3>It Builds Empathy and Social-Emotional Learning</h3>
+            <p>Stepping into a character's shoes through narrative helps students understand different perspectives, emotions, and life experiences — fostering compassion and emotional intelligence.</p>
+            <div class="example-box">
+                <strong>📌 Classroom Example:</strong> Sharing a story about a child from a different province or background helps students develop respect for diversity and reduces judgment.
+            </div>
+        </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- TYPES OF STORIES -->
+    <section class="types-section">
+        <div class="sec-header">
+            <span class="dot" style="background:var(--sky);"></span>
+            <h2>Types of Stories Teachers Use</h2>
+        </div>
+
+        <div class="type-row">
+            <div class="type-emoji">🧚</div>
+            <div>
+                <h4>Fairy Tales & Fables</h4>
+                <p>Stories with morals and magical elements. Great for teaching values and character lessons.</p>
+                <span class="tag" style="background:#8e44ad;">Values Education</span>
+            </div>
+        </div>
+        <div class="type-row">
+            <div class="type-emoji">🌏</div>
+            <div>
+                <h4>Myths & Legends</h4>
+                <p>Stories tied to culture and origin. Filipino legends like <em>Bathala</em> connect to social studies and heritage.</p>
+                <span class="tag" style="background:var(--accent);">Cultural Literacy</span>
+            </div>
+        </div>
+        <div class="type-row">
+            <div class="type-emoji">😂</div>
+            <div>
+                <h4>Humorous / Anecdotal Stories</h4>
+                <p>Light, funny narratives that ease tension and make content memorable. Perfect as lesson starters.</p>
+                <span class="tag" style="background:var(--gold);">Engagement</span>
+            </div>
+        </div>
+        <div class="type-row">
+            <div class="type-emoji">📰</div>
+            <div>
+                <h4>Real-Life / Personal Stories</h4>
+                <p>Teachers sharing their own experiences builds authenticity and trust with students.</p>
+                <span class="tag" style="background:var(--sage);">Connection</span>
+            </div>
+        </div>
+        <div class="type-row">
+            <div class="type-emoji">🧩</div>
+            <div>
+                <h4>Problem-Based Stories</h4>
+                <p>Open-ended scenarios that prompt critical thinking. "What would you do if…" sparks discussion.</p>
+                <span class="tag" style="background:var(--sky);">Critical Thinking</span>
+            </div>
+        </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- TIPS -->
+    <section class="tips-section">
+        <div class="sec-header" style="border:none;">
+            <span class="dot" style="background:var(--gold);"></span>
+            <h2 style="color:#fff;">Tips for Storytelling in Class</h2>
+        </div>
+        <div class="tips-grid">
+            <div class="tip-card">
+                <div class="tip-icon">🎙️</div>
+                <h4>Use Your Voice Dramatically</h4>
+                <p>Vary your pitch, pace, and volume. A whisper can be more powerful than a shout.</p>
+            </div>
+            <div class="tip-card">
+                <div class="tip-icon">👁️</div>
+                <h4>Make Eye Contact</h4>
+                <p>Move your gaze around the room so every student feels included in the story.</p>
+            </div>
+            <div class="tip-card">
+                <div class="tip-icon">🎭</div>
+                <h4>Bring Characters to Life</h4>
+                <p>Give each character a distinct voice, posture, or gesture so students can tell them apart.</p>
+            </div>
+            <div class="tip-card">
+                <div class="tip-icon">🤫</div>
+                <h4>Use Strategic Pauses</h4>
+                <p>Pause before a key moment to build suspense and hold attention.</p>
+            </div>
+            <div class="tip-card">
+                <div class="tip-icon">🖼️</div>
+                <h4>Paint Vivid Scenes</h4>
+                <p>Describe sights, sounds, and smells so students can picture themselves inside the story.</p>
+            </div>
+            <div class="tip-card">
+                <div class="tip-icon">💬</div>
+                <h4>Involve the Audience</h4>
+                <p>Ask questions mid-story: "What do you think will happen next?" It keeps everyone alert.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- VIDEO RESOURCES -->
+    <section class="video-section">
+        <div class="sec-header">
+            <span class="dot" style="background:var(--accent);"></span>
+            <h2>🎬 Video Resources</h2>
+        </div>
+        <div class="video-grid">
+            <div class="video-card">
+                <div class="video-container">
+                    <iframe src="https://www.youtube.com/embed/5wG_U5FWlb0"
+                        title="The Power of Storytelling in Education"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen loading="lazy"></iframe>
+                </div>
+                <div class="video-info">
+                    <h3>📚 Storytelling in Education</h3>
+                    <p>How teachers use storytelling to make lessons more meaningful and impactful.</p>
+                </div>
+            </div>
+            <div class="video-card">
+                <div class="video-container">
+                    <iframe src="https://www.youtube.com/embed/qmCRGTbR5eA"
+                        title="Storytelling Techniques for Teachers"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen loading="lazy"></iframe>
+                </div>
+                <div class="video-info">
+                    <h3>🎭 Storytelling Techniques</h3>
+                    <p>Practical vocal and performance techniques that bring stories alive in the classroom.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ACTIVITY -->
+    <section class="activity-section">
+        <div class="sec-header">
+            <span class="dot" style="background:var(--gold);"></span>
+            <h2>✍️ Guided Practice: Tell Your Story</h2>
+        </div>
+        <p>Practice your storytelling skills with this structured activity. Submit your output to Google Classroom.</p>
+        <ol class="activity-steps">
+            <li>Choose a type of story (fable, personal anecdote, myth, or problem-based scenario) appropriate for a specific grade level.</li>
+            <li>Outline your story: identify the setting, main character, conflict, and resolution.</li>
+            <li>Practice telling your story aloud — pay attention to your voice, gestures, and pacing.</li>
+            <li>Record a short 2–3 minute storytelling video and submit it to Google Classroom.</li>
+            <li>In 3–5 sentences, explain which storytelling element you focused on and why it matters for your students.</li>
+        </ol>
+        <a href="https://classroom.google.com/c/ODQ3NzUwOTM4MTI5?cjc=3vfsthfe" target="_blank" class="action-btn btn-gold">
+            <i data-lucide="external-link" style="width:16px;height:16px;"></i>
+            Open Google Classroom
+        </a>
+        <a href="#" onclick="alert('Worksheet coming soon! Check Google Classroom for materials.'); return false;" class="action-btn btn-sage">
+            <i data-lucide="download" style="width:16px;height:16px;"></i>
+            Download Worksheet
+        </a>
+    </section>
+
+    <!-- CLASSROOM CTA -->
+    <a href="https://classroom.google.com/c/ODQ3NzUwOTM4MTI5?cjc=3vfsthfe" target="_blank" class="classroom-cta">
+        <div>
+            <h2>📚 Access All Activities</h2>
+            <p>Pre-Test, Assessments, Reflections & All Materials</p>
+        </div>
+        <span class="cta-btn-inner">Go to Google Classroom →</span>
+    </a>
+
+    <!-- LESSON NAV -->
+    <div class="lesson-nav">
+        <a href="week3.html" class="nav-btn">
+            <i data-lucide="arrow-left" style="width:16px;height:16px;"></i>
+            Lesson 3
+        </a>
+        <a href="week5.html" class="nav-btn">
+            Lesson 5
+            <i data-lucide="arrow-right" style="width:16px;height:16px;"></i>
+        </a>
+    </div>
+
+</main>
+
+<footer>
+    <strong>Communication for Teachers: Storytelling</strong><br>
+    Week 4 — Engage. Inspire. Connect. 📖
+</footer>
+
+<script>
+    lucide.createIcons();
+</script>
+</body>
+</html>
