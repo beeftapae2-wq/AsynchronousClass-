@@ -6,6 +6,89 @@
     <title>Storytelling | Communication for Teachers</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBUeClSBF_9QTKQMOVh7iXQTRGZugbAyi8",
+            authDomain: "asynchronousclass-61231.firebaseapp.com",
+            projectId: "asynchronousclass-61231",
+            storageBucket: "asynchronousclass-61231.firebasestorage.app",
+            messagingSenderId: "488059356162",
+            appId: "1:488059356162:web:c6a5b9553062ae210b531b",
+            measurementId: "G-57GNQTZWZP"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // ============ AUTH CHECK ============
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        const userName = localStorage.getItem('userName');
+        if (!isLoggedIn || !userName) {
+            window.location.href = 'login.html';
+        }
+
+        // ============ CHECK IF LESSON IS UNLOCKED ============
+        async function checkAccess() {
+            try {
+                const classSnap = await getDoc(doc(db, 'classConfig', 'lessonAccess'));
+                if (classSnap.exists() && !classSnap.data().lesson4?.unlocked) {
+                    alert('🔒 Lesson 4 is not yet unlocked. Complete Lesson 3 first.');
+                    window.location.href = 'index.html';
+                    return;
+                }
+            } catch (err) {
+                console.error('Access check error:', err);
+                // Allow access on network error (safe fallback)
+            }
+        }
+
+        // ============ MARK COMPLETE ============
+        window.markLesson4Complete = async function() {
+            const btn = document.getElementById('completeLessonBtn');
+            btn.disabled = true;
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<span>Saving...</span>';
+
+            try {
+                const userRef = doc(db, 'users', userName, 'data', 'progress');
+                const userSnap = await getDoc(userRef);
+                let userData = userSnap.exists() ? userSnap.data() : {};
+
+                userData.lesson4 = { completed: true };
+                if (!userData.lesson5) userData.lesson5 = { completed: false };
+                await setDoc(userRef, userData, { merge: true });
+
+                // Unlock lesson 5 globally
+                const classRef = doc(db, 'classConfig', 'lessonAccess');
+                await setDoc(classRef, { lesson5: { unlocked: true } }, { merge: true });
+
+                // Update localStorage cache
+                let lessonAccess = JSON.parse(localStorage.getItem('lessonAccess')) || {};
+                if (!lessonAccess.lesson4) lessonAccess.lesson4 = {};
+                lessonAccess.lesson4.completed = true;
+                if (!lessonAccess.lesson5) lessonAccess.lesson5 = {};
+                lessonAccess.lesson5.unlocked = true;
+                localStorage.setItem('lessonAccess', JSON.stringify(lessonAccess));
+
+                alert('✅ Lesson 4 completed! Lesson 5 is now unlocked. Returning to dashboard...');
+                window.location.href = 'index.html';
+
+            } catch (err) {
+                console.error('Save error:', err);
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
+                lucide.createIcons();
+                alert('⚠️ Could not save progress. Please check your connection and try again.');
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', checkAccess);
+    </script>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -544,7 +627,7 @@
         <i data-lucide="arrow-left" style="width:18px;height:18px;"></i>
         Back to Home
     </a>
-    <span class="nav-badge">Week 4</span>
+    <span class="nav-badge">Lesson 4 of 8</span>
 </nav>
 
 <!-- HERO -->
@@ -810,56 +893,30 @@
         </div>
     </section>
 
-    <!-- ACTIVITY -->
-    <section class="activity-section">
-        <div class="sec-header">
-            <span class="dot" style="background:var(--gold);"></span>
-            <h2>✍️ Guided Practice: Tell Your Story</h2>
-        </div>
-        <p>Practice your storytelling skills with this structured activity. Submit your output to Google Classroom.</p>
-        <ol class="activity-steps">
-            <li>Choose a type of story (fable, personal anecdote, myth, or problem-based scenario) appropriate for a specific grade level.</li>
-            <li>Outline your story: identify the setting, main character, conflict, and resolution.</li>
-            <li>Practice telling your story aloud — pay attention to your voice, gestures, and pacing.</li>
-            <li>Record a short 2–3 minute storytelling video and submit it to Google Classroom.</li>
-            <li>In 3–5 sentences, explain which storytelling element you focused on and why it matters for your students.</li>
-        </ol>
-        <a href="https://classroom.google.com/c/ODQ3NzUwOTM4MTI5?cjc=3vfsthfe" target="_blank" class="action-btn btn-gold">
-            <i data-lucide="external-link" style="width:16px;height:16px;"></i>
-            Open Google Classroom
-        </a>
-        <a href="#" onclick="alert('Worksheet coming soon! Check Google Classroom for materials.'); return false;" class="action-btn btn-sage">
-            <i data-lucide="download" style="width:16px;height:16px;"></i>
-            Download Worksheet
-        </a>
-    </section>
-
-    <!-- CLASSROOM CTA -->
-    <a href="https://classroom.google.com/c/ODQ3NzUwOTM4MTI5?cjc=3vfsthfe" target="_blank" class="classroom-cta">
-        <div>
-            <h2>📚 Access All Activities</h2>
-            <p>Pre-Test, Assessments, Reflections & All Materials</p>
-        </div>
-        <span class="cta-btn-inner">Go to Google Classroom →</span>
-    </a>
-
-    <!-- LESSON NAV -->
+    <!-- MARK COMPLETE + LESSON NAV -->
     <div class="lesson-nav">
         <a href="week3.html" class="nav-btn">
             <i data-lucide="arrow-left" style="width:16px;height:16px;"></i>
-            Lesson 3
+            ← Lesson 3
         </a>
-        <a href="week5.html" class="nav-btn">
-            Lesson 5
+
+        <button id="completeLessonBtn" onclick="markLesson4Complete()" class="nav-btn" style="background:var(--sage);border:none;cursor:pointer;font-family:inherit;font-size:inherit;display:inline-flex;align-items:center;gap:8px;">
+            <i data-lucide="check-circle" style="width:16px;height:16px;"></i>
+            ✅ Mark as Complete
+        </button>
+
+        <a href="lesson5.html" class="nav-btn">
+            Lesson 5 →
             <i data-lucide="arrow-right" style="width:16px;height:16px;"></i>
         </a>
     </div>
+    <p style="text-align:center;font-size:0.78rem;color:var(--muted);margin-top:14px;">Completing this lesson will save your progress and unlock Lesson 5.</p>
 
 </main>
 
 <footer>
-    <strong>Communication for Teachers: Storytelling</strong><br>
-    Week 4 — Engage. Inspire. Connect. 📖
+    <strong>Lesson 4: Communication for Teachers — Storytelling</strong><br>
+    Purposive Communication · Engage. Inspire. Connect. 📖
 </footer>
 
 <script>
