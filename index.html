@@ -11,22 +11,20 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-        
         const firebaseConfig = {
             apiKey: "AIzaSyBUeClSBF_9QTKQMOVh7iXQTRGZugbAyi8",
             authDomain: "asynchronousclass-61231.firebaseapp.com",
-            projectId:"asynchronousclass-61231",
+            projectId: "asynchronousclass-61231",
             storageBucket: "asynchronousclass-61231.firebasestorage.app",
             messagingSenderId: "488059356162",
             appId: "1:488059356162:web:c6a5b9553062ae210b531b",
-			 measurementId: "G-57GNQTZWZP"
+            measurementId: "G-57GNQTZWZP"
         };
-        // ============================================================
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // ============ AUTHENTICATION CHECK ============
+        // ============ AUTH CHECK ============
         const isLoggedIn = localStorage.getItem('isLoggedIn');
         const userRole = localStorage.getItem('userRole');
         const userName = localStorage.getItem('userName');
@@ -48,34 +46,24 @@
             { id: 'lesson8', label: 'Lesson 8', title: 'Communication for Employment', desc: 'Interview skills, professional branding, and workplace readiness.', icon: 'users', gradient: 'from-rose-400 to-red-500', link: 'lesson8.html', defaultUnlocked: false }
         ];
 
-        // ============ FIRESTORE HELPERS ============
-        // Each student's progress is stored at: users/{userName}/progress
-        // Teacher unlock state is stored at: classConfig/lessonAccess
-
+        // ============ FIRESTORE REFS ============
         const userDocRef = () => doc(db, 'users', userName, 'data', 'progress');
         const classDocRef = () => doc(db, 'classConfig', 'lessonAccess');
 
+        // ============ LOAD FROM FIRESTORE ============
         async function loadProgressFromFirestore() {
             try {
                 showLoading(true);
 
-                // Load teacher-controlled unlock states
                 const classSnap = await getDoc(classDocRef());
-                let classData = {};
-                if (classSnap.exists()) {
-                    classData = classSnap.data();
-                }
+                let classData = classSnap.exists() ? classSnap.data() : {};
 
-                // Load student's own completion progress
                 let userData = {};
                 if (!isTeacher) {
                     const userSnap = await getDoc(userDocRef());
-                    if (userSnap.exists()) {
-                        userData = userSnap.data();
-                    }
+                    if (userSnap.exists()) userData = userSnap.data();
                 }
 
-                // Build lessonAccess from Firestore + defaults
                 let lessonAccess = {};
                 lessonConfig.forEach(cfg => {
                     lessonAccess[cfg.id] = {
@@ -87,25 +75,25 @@
 
                 localStorage.setItem('lessonAccess', JSON.stringify(lessonAccess));
                 showLoading(false);
-                renderModules(lessonAccess, lessonConfig, isTeacher);
+                renderModules(lessonAccess);
 
             } catch (err) {
                 console.error('Firestore load error:', err);
                 showLoading(false);
-                // Fallback to localStorage if Firestore fails
                 let lessonAccess = JSON.parse(localStorage.getItem('lessonAccess')) || {};
                 lessonConfig.forEach(cfg => {
                     if (!lessonAccess[cfg.id]) {
                         lessonAccess[cfg.id] = { unlocked: cfg.defaultUnlocked, completed: false, link: cfg.link };
                     }
                 });
-                renderModules(lessonAccess, lessonConfig, isTeacher);
+                renderModules(lessonAccess);
             }
         }
 
+        // ============ SAVE UNLOCK TO FIRESTORE (classConfig) ============
+        // This affects ALL students — used by teacher controls AND student completion
         async function saveUnlockToFirestore(lessonAccess) {
             try {
-                // Teachers save unlock state to classConfig (affects all students)
                 const classData = {};
                 lessonConfig.forEach(cfg => {
                     classData[cfg.id] = { unlocked: lessonAccess[cfg.id].unlocked };
@@ -116,9 +104,9 @@
             }
         }
 
-        async function saveCompletionToFirestore(lessonId, lessonAccess) {
+        // ============ SAVE COMPLETION TO FIRESTORE (per student) ============
+        async function saveCompletionToFirestore(lessonAccess) {
             try {
-                // Students save their own completion state
                 const userData = {};
                 lessonConfig.forEach(cfg => {
                     userData[cfg.id] = { completed: lessonAccess[cfg.id].completed };
@@ -129,17 +117,18 @@
             }
         }
 
-        // ============ LESSON CONTROLS ============
+        // ============ HELPERS ============
         function getLessonAccess() {
             return JSON.parse(localStorage.getItem('lessonAccess')) || {};
         }
 
         function saveLessonAccessLocal(lessonAccess) {
             localStorage.setItem('lessonAccess', JSON.stringify(lessonAccess));
-            renderModules(lessonAccess, lessonConfig, isTeacher);
+            renderModules(lessonAccess);
             lucide.createIcons();
         }
 
+        // ============ TEACHER CONTROLS ============
         window.toggleLesson = async function(lessonId) {
             if (!isTeacher) return;
             let lessonAccess = getLessonAccess();
@@ -166,22 +155,37 @@
             await saveUnlockToFirestore(lessonAccess);
         };
 
+        // ============ MARK COMPLETED ============
+        // THE KEY FIX: also saves unlock of next lesson to classConfig in Firestore
         window.markCompleted = async function(lessonId) {
             let lessonAccess = getLessonAccess();
-            if (lessonAccess[lessonId].completed) return;
+            if (lessonAccess[lessonId]?.completed) return;
+
+            // Mark current lesson complete
+            if (!lessonAccess[lessonId]) lessonAccess[lessonId] = {};
             lessonAccess[lessonId].completed = true;
 
+            // Unlock next lesson
             const lessons = lessonConfig.map(l => l.id);
             const idx = lessons.indexOf(lessonId);
             if (idx < lessons.length - 1) {
                 const nextId = lessons[idx + 1];
-                if (!lessonAccess[nextId].unlocked) {
-                    lessonAccess[nextId].unlocked = true;
-                }
+                if (!lessonAccess[nextId]) lessonAccess[nextId] = {};
+                lessonAccess[nextId].unlocked = true;
             }
+
+            // Save locally
             saveLessonAccessLocal(lessonAccess);
-            await saveCompletionToFirestore(lessonId, lessonAccess);
-            alert(`✅ Completed "${lessonConfig.find(l => l.id === lessonId).title}"! Next lesson unlocked.`);
+
+            // Save completion to user's Firestore doc
+            await saveCompletionToFirestore(lessonAccess);
+
+            // ✅ THE FIX: also save unlock state to classConfig so next lesson
+            // opens for this student on any device/browser
+            await saveUnlockToFirestore(lessonAccess);
+
+            const title = lessonConfig.find(l => l.id === lessonId)?.title || lessonId;
+            alert(`✅ Completed "${title}"! Next lesson unlocked.`);
         };
 
         window.logout = function() {
@@ -190,12 +194,12 @@
         };
 
         // ============ RENDER MODULES ============
-        function renderModules(lessonAccess, lessonConfig, isTeacher) {
+        function renderModules(lessonAccess) {
             const grid = document.getElementById('modulesGrid');
             if (!grid) return;
 
             grid.innerHTML = lessonConfig.map(cfg => {
-                const access = lessonAccess[cfg.id];
+                const access = lessonAccess[cfg.id] || { unlocked: cfg.defaultUnlocked, completed: false };
                 const unlocked = access.unlocked;
                 const completed = access.completed;
 
@@ -263,12 +267,12 @@
             if (grid) grid.style.display = show ? 'none' : 'grid';
         }
 
-        function checkCompletionParam() {
+        async function checkCompletionParam() {
             const urlParams = new URLSearchParams(window.location.search);
             const completeId = urlParams.get('complete');
             if (completeId) {
-                window.markCompleted(completeId);
                 window.history.replaceState({}, document.title, window.location.pathname);
+                await window.markCompleted(completeId);
             }
         }
 
@@ -279,7 +283,7 @@
             if (isTeacher) document.getElementById('teacherControls').style.display = 'block';
 
             await loadProgressFromFirestore();
-            checkCompletionParam();
+            await checkCompletionParam();
         });
     </script>
 
@@ -296,7 +300,6 @@
 </head>
 <body class="bg-slate-50 text-slate-800">
 
-<!-- Navigation -->
 <nav class="gradient-bg text-white sticky top-0 z-50 shadow-lg">
     <div class="container mx-auto px-4">
         <div class="flex justify-between items-center h-16">
@@ -325,7 +328,6 @@
     </div>
 </header>
 
-<!-- Teacher Controls -->
 <div id="teacherControls" style="display: none;" class="container mx-auto px-4 py-4">
     <div class="bg-amber-50 border-2 border-amber-300 rounded-xl p-4">
         <div class="flex items-center justify-between flex-wrap gap-3">
@@ -341,12 +343,10 @@
     </div>
 </div>
 
-<!-- Modules Section -->
 <section class="py-12 bg-slate-100">
     <div class="container mx-auto px-4">
         <h2 class="text-2xl md:text-3xl font-bold text-center mb-4 text-indigo-600">📘 Course Modules</h2>
 
-        <!-- Loading state -->
         <div id="loadingState" class="text-center py-16">
             <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-indigo-500 border-t-transparent mb-3"></div>
             <p class="text-slate-500 text-sm">Loading your progress...</p>
