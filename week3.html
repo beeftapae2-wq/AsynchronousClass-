@@ -33,8 +33,9 @@
         }
 
         // ============ CHECK IF LESSON IS UNLOCKED ============
-        // FIX (Bug 3): Always check Firestore directly instead of trusting stale localStorage cache.
-        // The old code would allow access if the cache said unlocked, even if the teacher re-locked it.
+        // FIX (Bug 3): Always verify against Firestore — never trust stale localStorage cache.
+        // Old code skipped the Firestore check if the cache existed, meaning teacher re-locking
+        // had no effect on students who had previously loaded the page.
         async function checkAccess() {
             try {
                 const classSnap = await getDoc(doc(db, 'classConfig', 'lessonAccess'));
@@ -43,10 +44,10 @@
                     window.location.href = 'index.html';
                     return;
                 }
-                // If Firestore says unlocked (or doc doesn't exist), allow access
+                // If Firestore doc doesn't exist or lesson3 is unlocked → allow access
             } catch (err) {
                 console.error('Access check error:', err);
-                // Allow access on network error (fallback behaviour preserved)
+                // Allow access on network error (safe fallback)
             }
         }
 
@@ -54,29 +55,29 @@
         window.markLesson3Complete = async function() {
             const btn = document.getElementById('completeLessonBtn');
             btn.disabled = true;
-            // FIX (Bug 2): Save the full button HTML so we can restore it exactly on error,
-            // preserving the lucide icon that was being lost with innerHTML = plain-text.
+
+            // FIX (Bug 2): Capture the full button HTML before changing it so we can
+            // restore it exactly on error — the old code used plain text which stripped the lucide <i> icon.
             const originalHTML = btn.innerHTML;
             btn.innerHTML = '<span>Saving...</span>';
 
             try {
-                // Save completion to user's own progress doc
+                // 1. Save completion to this student's personal progress doc
                 const userRef = doc(db, 'users', userName, 'data', 'progress');
                 const userSnap = await getDoc(userRef);
                 let userData = userSnap.exists() ? userSnap.data() : {};
 
                 userData.lesson3 = { completed: true };
                 if (!userData.lesson4) userData.lesson4 = { completed: false };
-
                 await setDoc(userRef, userData, { merge: true });
 
-                // FIX (Bug 1): Also write the unlock to classConfig so it persists globally
-                // across all devices and students. Without this, lesson 4 would stay locked
-                // when loading from Firestore on a fresh device/browser.
+                // FIX (Bug 1): Also write the lesson4 unlock to classConfig so it persists
+                // globally across all devices and browsers. Without this, lesson 4 would remain
+                // locked when the student loads from Firestore on a new device.
                 const classRef = doc(db, 'classConfig', 'lessonAccess');
                 await setDoc(classRef, { lesson4: { unlocked: true } }, { merge: true });
 
-                // Update localStorage cache
+                // 3. Update localStorage cache
                 let lessonAccess = JSON.parse(localStorage.getItem('lessonAccess')) || {};
                 if (!lessonAccess.lesson3) lessonAccess.lesson3 = {};
                 lessonAccess.lesson3.completed = true;
@@ -84,19 +85,18 @@
                 lessonAccess.lesson4.unlocked = true;
                 localStorage.setItem('lessonAccess', JSON.stringify(lessonAccess));
 
-                // FIX (Bug 4): Do NOT redirect with ?complete=lesson3 because index.html's
-                // checkCompletionParam() would call markCompleted('lesson3') again, causing
-                // redundant Firestore writes. Progress is already fully saved above.
+                // FIX (Bug 4): Redirect to plain index.html — NOT ?complete=lesson3.
+                // The old redirect triggered markCompleted('lesson3') again in index.html,
+                // causing redundant duplicate Firestore writes. Progress is fully saved above.
                 alert('✅ Lesson 3 completed! Lesson 4 is now unlocked. Returning to dashboard...');
                 window.location.href = 'index.html';
 
             } catch (err) {
                 console.error('Save error:', err);
                 btn.disabled = false;
-                // FIX (Bug 2): Restore the original button HTML (with icon) instead of
-                // setting plain text which stripped the lucide <i> element.
+                // FIX (Bug 2): Restore the original button HTML (with the lucide icon intact).
                 btn.innerHTML = originalHTML;
-                lucide.createIcons(); // re-render the icon after restoring innerHTML
+                lucide.createIcons(); // re-render the icon after innerHTML restore
                 alert('⚠️ Could not save progress. Please check your connection and try again.');
             }
         };
@@ -178,8 +178,8 @@
         <!-- CANVA PRESENTATION -->
         <div class="mb-8">
             <div class="canva-container">
-                <iframe src="https://www.canva.com/design/DAHFnV6_NRI/-tp-8RWqv--flc0WOysU_A/view?embed" 
-                        allowfullscreen="allowfullscreen" 
+                <iframe src="https://www.canva.com/design/DAHFnV6_NRI/-tp-8RWqv--flc0WOysU_A/view?embed"
+                        allowfullscreen="allowfullscreen"
                         allow="fullscreen">
                 </iframe>
             </div>
@@ -311,18 +311,18 @@
             <a href="week2.html" class="flex items-center gap-2 bg-slate-600 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-slate-700 transition action-btn">
                 ← Lesson 2
             </a>
-            
+
             <button id="completeLessonBtn" onclick="markLesson3Complete()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-full font-bold transition action-btn flex items-center gap-2 shadow-md">
                 <i data-lucide="check-circle" class="w-5 h-5"></i>
                 <span>✅ Mark Lesson as Complete</span>
             </button>
-            
+
             <div class="text-slate-400 text-sm flex items-center gap-2">
                 <i data-lucide="lock" class="w-4 h-4"></i>
                 <span>Lesson 4 will unlock after completion</span>
             </div>
         </div>
-        
+
         <p class="text-center text-xs text-slate-500 mt-6">Completing this lesson will save your progress and unlock Lesson 4: Communication for Teachers (Storytelling).</p>
     </main>
 
