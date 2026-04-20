@@ -31,7 +31,6 @@
             window.location.href = 'login.html';
         }
 
-        // Access check — always verify against Firestore
         async function checkAccess() {
             try {
                 const classSnap = await getDoc(doc(db, 'classConfig', 'lessonAccess'));
@@ -45,12 +44,11 @@
             }
         }
 
-        // Mark Complete
         window.markLesson5Complete = async function() {
             const btn = document.getElementById('completeLessonBtn');
             btn.disabled = true;
             const originalHTML = btn.innerHTML;
-            btn.innerHTML = '<span>Saving...</span>';
+            btn.innerHTML = '<span class="flex items-center gap-2"><svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>Saving...</span>';
 
             try {
                 const userRef = doc(db, 'users', userName, 'data', 'progress');
@@ -61,7 +59,6 @@
                 if (!userData.lesson6) userData.lesson6 = { completed: false };
                 await setDoc(userRef, userData, { merge: true });
 
-                // Also unlock lesson6 in classConfig
                 const classRef = doc(db, 'classConfig', 'lessonAccess');
                 await setDoc(classRef, { lesson6: { unlocked: true } }, { merge: true });
 
@@ -87,508 +84,1074 @@
         document.addEventListener('DOMContentLoaded', checkAccess);
     </script>
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Open+Sans:wght@400;600;700&display=swap');
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-        body { font-family: 'Open Sans', sans-serif; background-color: #f8fafc; color: #1e293b; }
+    <style>
+        :root {
+            --navy: #0f1f3d;
+            --navy-mid: #1a3560;
+            --blue: #2454a4;
+            --blue-light: #3b6fd4;
+            --gold: #e8a020;
+            --gold-light: #f5bc4a;
+            --cream: #faf7f0;
+            --slate-soft: #f0f4f8;
+            --text-main: #1a2742;
+            --text-muted: #5a6a82;
+            --border: #dde3ee;
+            --green-deep: #0a4a2e;
+            --blue-deep: #0d2d5e;
+            --amber-deep: #5a3500;
+            --red-deep: #5c0f0f;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--cream);
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+        }
+
         h1, h2, h3, h4, h5, h6 { font-family: 'Nunito', sans-serif; }
 
-        .gradient-bg { background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 50%, #fbbf24 100%); }
-        .lesson-gradient { background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8e 60%, #1a4f6e 100%); }
-        .bg-white20 { background-color: rgba(255,255,255,0.2); }
+        /* ── NAV ── */
+        .top-nav {
+            background: var(--navy);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 3px solid var(--gold);
+        }
 
-        .action-btn { transition: all 0.3s ease; }
-        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
+        /* ── HERO ── */
+        .hero {
+            background: linear-gradient(150deg, var(--navy) 0%, var(--navy-mid) 55%, #162d55 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -120px; right: -120px;
+            width: 520px; height: 520px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(232,160,32,0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -80px; left: -80px;
+            width: 380px; height: 380px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(59,111,212,0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .hero-badge {
+            background: rgba(232,160,32,0.18);
+            border: 1px solid rgba(232,160,32,0.4);
+            color: var(--gold-light);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            padding: 5px 16px;
+            border-radius: 999px;
+            display: inline-block;
+            margin-bottom: 16px;
+        }
+        .hero-icon-wrap {
+            background: rgba(232,160,32,0.15);
+            border: 2px solid rgba(232,160,32,0.3);
+            border-radius: 20px;
+            padding: 14px;
+            display: inline-block;
+            margin-bottom: 16px;
+        }
+        .lesson-tag {
+            background: var(--gold);
+            color: var(--navy);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 3px 12px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
 
-        /* SWOT Matrix */
-        .swot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
-        .swot-cell { padding: 28px; position: relative; overflow: hidden; }
+        /* ── SECTION HEADERS ── */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid var(--border);
+        }
+        .section-icon {
+            width: 42px; height: 42px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .section-label {
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+        .section-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-main);
+            line-height: 1.1;
+        }
+
+        /* ── CARDS ── */
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .card:hover { box-shadow: 0 8px 28px rgba(15,31,61,0.09); transform: translateY(-2px); }
+
+        .definition-box {
+            background: linear-gradient(135deg, var(--blue) 0%, var(--navy-mid) 100%);
+            border-radius: 16px;
+            padding: 32px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .definition-box::after {
+            content: 'SWOT';
+            position: absolute;
+            right: -20px; bottom: -30px;
+            font-size: 110px;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 900;
+            opacity: 0.06;
+            line-height: 1;
+            pointer-events: none;
+        }
+
+        /* ── SWOT PILLS ── */
+        .swot-pill {
+            border-radius: 12px;
+            padding: 20px 16px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .swot-pill-letter {
+            font-family: 'Nunito', sans-serif;
+            font-size: 42px;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+        .swot-pill-word {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.85;
+        }
+        .swot-pill-sub {
+            font-size: 10px;
+            opacity: 0.65;
+            margin-top: 3px;
+        }
+
+        /* ── FACTOR CARDS ── */
+        .factor-card {
+            background: white;
+            border-radius: 14px;
+            padding: 22px 24px;
+            border-left: 4px solid;
+            border-top: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+        .factor-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.07); }
+
+        /* ── BENEFIT ITEMS ── */
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 16px 18px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+        .benefit-item:hover {
+            border-color: var(--blue-light);
+            box-shadow: 0 4px 14px rgba(36,84,164,0.08);
+        }
+        .benefit-num {
+            width: 34px; height: 34px;
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 14px;
+            font-family: 'Nunito', sans-serif;
+            flex-shrink: 0;
+        }
+
+        /* ── SWOT MATRIX ── */
+        .swot-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 24px 60px rgba(15,31,61,0.18);
+        }
+        .swot-cell {
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
         .swot-cell::before {
             content: attr(data-letter);
             position: absolute;
-            right: -10px; bottom: -20px;
-            font-size: 120px;
+            right: -12px; bottom: -24px;
+            font-size: 130px;
             font-family: 'Nunito', sans-serif;
-            font-weight: 800;
+            font-weight: 900;
             opacity: 0.07;
             line-height: 1;
             pointer-events: none;
         }
-        .swot-s { background: linear-gradient(135deg, #064e3b, #065f46); color: white; }
-        .swot-w { background: linear-gradient(135deg, #1e3a5f, #1e40af); color: white; }
-        .swot-o { background: linear-gradient(135deg, #78350f, #92400e); color: white; }
-        .swot-t { background: linear-gradient(135deg, #7f1d1d, #991b1b); color: white; }
+        .swot-s { background: linear-gradient(135deg, #053d26, #065f46); color: white; }
+        .swot-w { background: linear-gradient(135deg, #0d2d5e, #1e3a8a); color: white; }
+        .swot-o { background: linear-gradient(135deg, #5a3500, #92400e); color: white; }
+        .swot-t { background: linear-gradient(135deg, #5c0f0f, #991b1b); color: white; }
 
         .swot-label {
-            display: inline-flex; align-items: center; gap: 8px;
-            font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
-            text-transform: uppercase; opacity: 0.75;
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+            text-transform: uppercase; opacity: 0.7;
             margin-bottom: 8px;
         }
         .swot-title {
             font-family: 'Nunito', sans-serif;
-            font-size: 22px; font-weight: 800;
-            margin-bottom: 14px; line-height: 1.1;
+            font-size: 24px; font-weight: 900;
+            margin-bottom: 16px; line-height: 1;
         }
         .swot-item {
             display: flex; align-items: flex-start; gap: 8px;
-            font-size: 13px; line-height: 1.5;
-            margin-bottom: 8px; opacity: 0.92;
+            font-size: 13px; line-height: 1.55;
+            margin-bottom: 9px; opacity: 0.92;
         }
         .swot-dot {
             width: 6px; height: 6px; border-radius: 50%;
-            background: currentColor; opacity: 0.6;
-            margin-top: 6px; flex-shrink: 0;
+            background: currentColor; opacity: 0.5;
+            margin-top: 7px; flex-shrink: 0;
         }
 
-        /* Factor cards */
-        .factor-card {
-            border-radius: 12px; padding: 20px 24px;
-            border-left: 4px solid;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .factor-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
-
-        /* Benefit items */
-        .benefit-item {
-            display: flex; align-items: flex-start; gap: 14px;
-            padding: 16px; border-radius: 10px;
-            background: white; border: 1px solid #e2e8f0;
-            transition: all 0.2s ease;
-        }
-        .benefit-item:hover { border-color: #4f46e5; box-shadow: 0 4px 12px rgba(79,70,229,0.08); }
-        .benefit-num {
-            width: 32px; height: 32px; border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 800; font-size: 14px; flex-shrink: 0;
-            font-family: 'Nunito', sans-serif;
-        }
-
-        /* How-to steps */
+        /* ── STEP CARDS ── */
         .step-card {
-            background: white; border-radius: 12px; padding: 20px 24px;
-            border: 1px solid #e2e8f0; position: relative;
-            padding-left: 72px; transition: all 0.2s ease;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px 24px 20px 72px;
+            position: relative;
+            transition: all 0.2s;
         }
         .step-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.07); border-color: #c7d2fe; }
         .step-num {
             position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
-            width: 36px; height: 36px; border-radius: 10px;
+            width: 38px; height: 38px; border-radius: 11px;
             display: flex; align-items: center; justify-content: center;
-            font-weight: 800; font-size: 16px;
+            font-weight: 900; font-size: 16px;
             font-family: 'Nunito', sans-serif;
-            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            background: linear-gradient(135deg, var(--blue), var(--navy-mid));
             color: white;
-        }
-        .step-card.multi-step { padding-left: 24px; padding-top: 60px; }
-        .step-num.top { top: 20px; transform: none; }
-
-        /* Section header strip */
-        .section-tag {
-            display: inline-flex; align-items: center; gap-6px;
-            font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
-            text-transform: uppercase; padding: 4px 12px; border-radius: 999px;
-            margin-bottom: 8px;
+            box-shadow: 0 4px 10px rgba(36,84,164,0.3);
         }
 
-        /* Canva embed */
-        .canva-container { position: relative; width: 100%; height: 0; padding-bottom: 56.25%; overflow: hidden; border-radius: 14px; background: white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
-        .canva-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        /* ── YOUTUBE EMBEDS ── */
+        .video-wrap {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            border-radius: 14px;
+            overflow: hidden;
+            background: #0a0a0a;
+            box-shadow: 0 12px 40px rgba(15,31,61,0.2);
+        }
+        .video-wrap iframe {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border: none;
+        }
+        .video-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+        .video-card:hover { box-shadow: 0 10px 32px rgba(15,31,61,0.12); transform: translateY(-2px); }
+        .video-label {
+            display: flex; align-items: center; gap: 10px;
+            padding: 14px 18px;
+            background: var(--slate-soft);
+            border-top: 1px solid var(--border);
+        }
+        .yt-badge {
+            background: #ff0000;
+            color: white;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
 
-        /* Reveal animation */
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .reveal { animation: fadeUp 0.5s ease forwards; }
-        .reveal-1 { animation-delay: 0.05s; opacity: 0; }
-        .reveal-2 { animation-delay: 0.15s; opacity: 0; }
-        .reveal-3 { animation-delay: 0.25s; opacity: 0; }
-        .reveal-4 { animation-delay: 0.35s; opacity: 0; }
+        /* ── CANVA EMBED ── */
+        .canva-wrapper {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 12px 40px rgba(15,31,61,0.1);
+        }
+        .canva-header {
+            background: linear-gradient(90deg, #7c3aed, #4f46e5);
+            padding: 14px 22px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .canva-badge {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 3px 10px;
+            border-radius: 999px;
+        }
+        .canva-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            background: #f5f5f5;
+        }
+        .canva-container iframe {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border: none;
+        }
 
-        /* Sub-topic pills inside how-to */
+        /* ── AXIS TABLE ── */
+        .axis-table {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        /* ── KEY TAKEAWAY ── */
+        .takeaway {
+            background: linear-gradient(135deg, #eff6ff, #eef2ff);
+            border: 1px solid #c7d2fe;
+            border-radius: 14px;
+            padding: 22px;
+            display: flex;
+            gap: 16px;
+        }
+        .takeaway-icon {
+            background: var(--blue);
+            color: white;
+            padding: 8px;
+            border-radius: 10px;
+            flex-shrink: 0;
+            align-self: flex-start;
+        }
+
+        /* ── COMPLETE BUTTON ── */
+        .complete-btn {
+            background: linear-gradient(135deg, #059669, #047857);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 999px;
+            font-weight: 800;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            box-shadow: 0 6px 20px rgba(5,150,105,0.35);
+        }
+        .complete-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(5,150,105,0.45);
+        }
+        .complete-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--navy);
+            color: white;
+            padding: 10px 22px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover { background: var(--navy-mid); transform: translateY(-1px); }
+
+        /* ── SUBTOPIC PILLS ── */
         .subtopic {
             display: inline-flex; align-items: center; gap: 6px;
             padding: 5px 12px; border-radius: 8px;
             font-size: 12px; font-weight: 700;
             margin-bottom: 8px;
         }
+
+        /* ── ANIMATIONS ── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(22px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .reveal { animation: fadeUp 0.55s ease forwards; opacity: 0; }
+        .delay-1 { animation-delay: 0.05s; }
+        .delay-2 { animation-delay: 0.15s; }
+        .delay-3 { animation-delay: 0.25s; }
+        .delay-4 { animation-delay: 0.35s; }
+        .delay-5 { animation-delay: 0.45s; }
+        .delay-6 { animation-delay: 0.55s; }
+
+        /* ── DIVIDER ── */
+        .gold-divider {
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            border: none;
+            margin: 48px 0;
+            opacity: 0.5;
+        }
+
+        /* ── PROGRESS BAR ── */
+        .progress-bar-wrap {
+            background: rgba(255,255,255,0.12);
+            border-radius: 999px;
+            height: 6px;
+            width: 120px;
+        }
+        .progress-bar-fill {
+            background: var(--gold);
+            height: 100%;
+            border-radius: 999px;
+            width: 62.5%; /* lesson 5 of 8 */
+        }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800">
+<body>
 
-    <!-- Nav -->
-    <nav class="gradient-bg text-white sticky top-0 z-50 shadow-lg">
-        <div class="container mx-auto px-4">
-            <div class="flex justify-between items-center h-16">
-                <a href="index.html" class="flex items-center space-x-2 font-bold text-xl hover:opacity-80 transition">
-                    <i data-lucide="arrow-left" class="w-6 h-6"></i>
-                    <span>Back</span>
-                </a>
-                <div class="text-sm font-semibold bg-white20 px-4 py-2 rounded-full">Lesson 5 of 8</div>
+<!-- ── NAV ── -->
+<nav class="top-nav text-white shadow-lg">
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center h-16">
+            <a href="index.html" class="flex items-center gap-2 font-bold text-base hover:opacity-75 transition">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                <span>Back to Dashboard</span>
+            </a>
+            <div class="flex items-center gap-3">
+                <div class="progress-bar-wrap">
+                    <div class="progress-bar-fill"></div>
+                </div>
+                <span class="text-xs font-semibold opacity-70">Lesson 5 of 8</span>
             </div>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <!-- Hero Header -->
-    <header class="lesson-gradient text-white py-14 relative overflow-hidden">
-        <!-- decorative background shapes -->
-        <div style="position:absolute;top:-60px;right:-60px;width:320px;height:320px;border-radius:50%;background:rgba(255,255,255,0.04);pointer-events:none;"></div>
-        <div style="position:absolute;bottom:-80px;left:-40px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,0.03);pointer-events:none;"></div>
-
-        <div class="container mx-auto px-4 text-center relative z-10">
-            <div class="inline-block p-3 bg-white20 rounded-2xl mb-4">
-                <i data-lucide="briefcase" class="w-12 h-12"></i>
-            </div>
-            <div class="inline-block bg-white/10 text-white text-xs font-bold tracking-widest uppercase px-4 py-1.5 rounded-full mb-4">Lesson 5</div>
-            <h1 class="text-3xl md:text-5xl font-extrabold mb-3 leading-tight">Communication for<br>Business and Trade</h1>
-            <p class="text-lg opacity-80 max-w-xl mx-auto">Understanding SWOT Analysis as a strategic communication and planning tool</p>
+<!-- ── HERO ── -->
+<header class="hero text-white py-16 relative">
+    <div class="container mx-auto px-4 text-center relative z-10 max-w-3xl">
+        <div class="lesson-tag">Lesson 5</div>
+        <div class="hero-icon-wrap">
+            <i data-lucide="briefcase" class="w-14 h-14 text-yellow-300"></i>
         </div>
-    </header>
+        <h1 class="text-4xl md:text-5xl font-black mb-4 leading-tight tracking-tight">
+            Communication for<br>Business &amp; Trade
+        </h1>
+        <p class="text-lg opacity-75 max-w-xl mx-auto leading-relaxed mb-8">
+            Master the SWOT Analysis — a strategic communication framework used by businesses, managers, and professionals worldwide.
+        </p>
+        <!-- Quick jump nav -->
+        <div class="flex flex-wrap justify-center gap-2 text-sm">
+            <a href="#section-a" class="bg-white/10 hover:bg-white/20 transition px-4 py-1.5 rounded-full font-semibold text-xs">📖 Definition</a>
+            <a href="#section-b" class="bg-white/10 hover:bg-white/20 transition px-4 py-1.5 rounded-full font-semibold text-xs">⚖️ Factors</a>
+            <a href="#section-c" class="bg-white/10 hover:bg-white/20 transition px-4 py-1.5 rounded-full font-semibold text-xs">⭐ Benefits</a>
+            <a href="#section-d" class="bg-white/10 hover:bg-white/20 transition px-4 py-1.5 rounded-full font-semibold text-xs">📋 How-To</a>
+            <a href="#section-e" class="bg-white/10 hover:bg-white/20 transition px-4 py-1.5 rounded-full font-semibold text-xs">☕ Sample Matrix</a>
+            <a href="#section-f" class="bg-white/10 hover:bg-white/20 transition px-4 py-1.5 rounded-full font-semibold text-xs">🎬 Videos</a>
+            <a href="#section-g" class="bg-white/10 hover:bg-white/20 transition px-4 py-1.5 rounded-full font-semibold text-xs">📊 Visual Aid</a>
+        </div>
+    </div>
+</header>
 
-    <main class="container mx-auto px-4 py-10 max-w-5xl">
+<!-- ── MAIN CONTENT ── -->
+<main class="container mx-auto px-4 py-12 max-w-5xl">
 
-        <!-- ── SECTION A: Definition ── -->
-        <section class="mb-12 reveal reveal-1">
-            <div class="flex items-center gap-3 mb-5">
-                <div class="bg-indigo-100 p-2.5 rounded-xl"><i data-lucide="book-open" class="w-6 h-6 text-indigo-600"></i></div>
+    <!-- ══ SECTION A: DEFINITION ══ -->
+    <section id="section-a" class="mb-14 reveal delay-1">
+        <div class="section-header">
+            <div class="section-icon bg-indigo-100">
+                <i data-lucide="book-open" class="w-5 h-5 text-indigo-700"></i>
+            </div>
+            <div>
+                <p class="section-label text-indigo-500">Section A</p>
+                <h2 class="section-title">Definition &amp; Relevance</h2>
+            </div>
+        </div>
+
+        <div class="definition-box mb-6">
+            <div class="flex items-start gap-4">
+                <div class="bg-white/15 p-2.5 rounded-xl flex-shrink-0 mt-0.5">
+                    <i data-lucide="layout-grid" class="w-7 h-7 text-yellow-300"></i>
+                </div>
                 <div>
-                    <p class="text-xs font-bold tracking-widest text-indigo-400 uppercase">Section A</p>
-                    <h2 class="text-2xl font-extrabold text-slate-800">Definition & Relevance</h2>
+                    <h3 class="text-xl font-bold mb-2 text-yellow-200">What is a SWOT Analysis?</h3>
+                    <p class="opacity-90 leading-relaxed">A <strong class="text-yellow-300">SWOT Analysis</strong> (or SWOT Matrix) is a strategic planning diagram that identifies an organization's key <strong>S</strong>trengths, <strong>W</strong>eaknesses, <strong>O</strong>pportunities, and <strong>T</strong>hreats.</p>
+                    <p class="opacity-75 mt-3 text-sm leading-relaxed">By conducting this analysis, any organization, corporation, or company can innovate or adapt new strategies to better position itself in the corporate world.</p>
+                    <div class="mt-4 bg-white/10 rounded-lg px-4 py-2 text-sm font-semibold text-yellow-100 inline-block">
+                        💡 Used in business, education, career planning, and personal development
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <div class="bg-gradient-to-r from-indigo-600 to-violet-600 rounded-2xl p-8 text-white shadow-xl mb-6">
-                <div class="flex items-start gap-4">
-                    <div class="bg-white/20 p-2 rounded-xl flex-shrink-0 mt-1">
-                        <i data-lucide="layout-grid" class="w-7 h-7"></i>
+        <!-- SWOT quick-reference -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="swot-pill" style="background:linear-gradient(135deg,#053d26,#065f46);color:white;">
+                <div class="swot-pill-letter">S</div>
+                <div class="swot-pill-word">Strengths</div>
+                <div class="swot-pill-sub">Internal · Positive</div>
+            </div>
+            <div class="swot-pill" style="background:linear-gradient(135deg,#0d2d5e,#1e3a8a);color:white;">
+                <div class="swot-pill-letter">W</div>
+                <div class="swot-pill-word">Weaknesses</div>
+                <div class="swot-pill-sub">Internal · Negative</div>
+            </div>
+            <div class="swot-pill" style="background:linear-gradient(135deg,#5a3500,#92400e);color:white;">
+                <div class="swot-pill-letter">O</div>
+                <div class="swot-pill-word">Opportunities</div>
+                <div class="swot-pill-sub">External · Positive</div>
+            </div>
+            <div class="swot-pill" style="background:linear-gradient(135deg,#5c0f0f,#991b1b);color:white;">
+                <div class="swot-pill-letter">T</div>
+                <div class="swot-pill-word">Threats</div>
+                <div class="swot-pill-sub">External · Negative</div>
+            </div>
+        </div>
+    </section>
+
+    <hr class="gold-divider">
+
+    <!-- ══ SECTION B: INTERNAL VS EXTERNAL ══ -->
+    <section id="section-b" class="mb-14 reveal delay-2">
+        <div class="section-header">
+            <div class="section-icon bg-teal-100">
+                <i data-lucide="arrow-left-right" class="w-5 h-5 text-teal-700"></i>
+            </div>
+            <div>
+                <p class="section-label text-teal-500">Section B</p>
+                <h2 class="section-title">Internal vs External Factors</h2>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-5 mb-5">
+            <!-- Internal -->
+            <div class="factor-card" style="border-left-color:#059669;">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="bg-emerald-600 text-white p-2 rounded-lg">
+                        <i data-lucide="settings" class="w-5 h-5"></i>
                     </div>
                     <div>
-                        <h3 class="text-xl font-bold mb-2">What is a SWOT Analysis?</h3>
-                        <p class="opacity-90 leading-relaxed">A <strong>SWOT Analysis</strong> (or SWOT Matrix) is a diagram that shows an organization's or person's key <span class="font-bold">S</span>trengths, <span class="font-bold">W</span>eaknesses, <span class="font-bold">O</span>pportunities, and <span class="font-bold">T</span>hreats.</p>
-                        <p class="opacity-80 mt-3 text-sm leading-relaxed">By conducting this analysis, any organization, corporation, or company can innovate or adapt new strategies to better position itself in the corporate world.</p>
+                        <span class="text-xs font-bold tracking-wider text-emerald-600 uppercase">Factor Type 1</span>
+                        <h3 class="font-extrabold text-lg text-emerald-900">Internal Factors</h3>
                     </div>
+                </div>
+                <div class="bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg px-3 py-2 text-xs font-bold mb-3 inline-block">
+                    ✅ Things we CAN control
+                </div>
+                <p class="text-slate-600 text-sm leading-relaxed mb-3">Internal factors lie within the organization's control. They map directly to <strong>Strengths</strong> (what you do well) and <strong>Weaknesses</strong> (where you fall short).</p>
+                <div class="bg-emerald-50 border border-emerald-100 rounded-lg p-3">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">📌 Example</p>
+                    <p class="text-sm text-slate-600">Workers spending time fixing computer crashes — a solvable problem through employee training or purchasing better software.</p>
                 </div>
             </div>
 
-            <!-- SWOT quick-reference pills -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <div class="rounded-xl p-4 text-center bg-emerald-700 text-white shadow-md">
-                    <div class="text-3xl font-extrabold font-nunito leading-none mb-1">S</div>
-                    <div class="text-xs font-semibold uppercase tracking-wider opacity-80">Strengths</div>
-                    <div class="text-xs opacity-70 mt-1">Internal · Positive</div>
+            <!-- External -->
+            <div class="factor-card" style="border-left-color:#d97706;">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="bg-amber-600 text-white p-2 rounded-lg">
+                        <i data-lucide="globe" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold tracking-wider text-amber-600 uppercase">Factor Type 2</span>
+                        <h3 class="font-extrabold text-lg text-amber-900">External Factors</h3>
+                    </div>
                 </div>
-                <div class="rounded-xl p-4 text-center bg-blue-800 text-white shadow-md">
-                    <div class="text-3xl font-extrabold font-nunito leading-none mb-1">W</div>
-                    <div class="text-xs font-semibold uppercase tracking-wider opacity-80">Weaknesses</div>
-                    <div class="text-xs opacity-70 mt-1">Internal · Negative</div>
+                <div class="bg-orange-50 text-orange-700 border border-orange-200 rounded-lg px-3 py-2 text-xs font-bold mb-3 inline-block">
+                    ⚠️ Things we CANNOT control
                 </div>
-                <div class="rounded-xl p-4 text-center bg-amber-700 text-white shadow-md">
-                    <div class="text-3xl font-extrabold font-nunito leading-none mb-1">O</div>
-                    <div class="text-xs font-semibold uppercase tracking-wider opacity-80">Opportunities</div>
-                    <div class="text-xs opacity-70 mt-1">External · Positive</div>
-                </div>
-                <div class="rounded-xl p-4 text-center bg-red-800 text-white shadow-md">
-                    <div class="text-3xl font-extrabold font-nunito leading-none mb-1">T</div>
-                    <div class="text-xs font-semibold uppercase tracking-wider opacity-80">Threats</div>
-                    <div class="text-xs opacity-70 mt-1">External · Negative</div>
+                <p class="text-slate-600 text-sm leading-relaxed mb-3">External factors come from outside the organization. They map to <strong>Opportunities</strong> (favorable conditions) and <strong>Threats</strong> (risks from the environment).</p>
+                <div class="bg-amber-50 border border-amber-100 rounded-lg p-3">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">📌 Example</p>
+                    <p class="text-sm text-slate-600">Inflation rates of goods due to government regulations — an external force the company must adapt to, not control.</p>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- ── SECTION B: Internal vs External ── -->
-        <section class="mb-12 reveal reveal-2">
-            <div class="flex items-center gap-3 mb-5">
-                <div class="bg-teal-100 p-2.5 rounded-xl"><i data-lucide="arrow-left-right" class="w-6 h-6 text-teal-600"></i></div>
-                <div>
-                    <p class="text-xs font-bold tracking-widest text-teal-400 uppercase">Section B</p>
-                    <h2 class="text-2xl font-extrabold text-slate-800">Internal vs External Factors</h2>
+        <!-- Visual axis -->
+        <div class="card p-5">
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 text-center">Where each SWOT element falls</p>
+            <div class="axis-table text-sm text-center overflow-hidden">
+                <div class="grid grid-cols-2 bg-slate-100">
+                    <div class="py-2.5 px-3 text-xs font-bold text-emerald-700 uppercase tracking-wider border-r border-slate-200">Internal (controllable)</div>
+                    <div class="py-2.5 px-3 text-xs font-bold text-amber-700 uppercase tracking-wider">External (uncontrollable)</div>
                 </div>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-5">
-                <!-- Internal -->
-                <div class="factor-card bg-emerald-50 border-emerald-500">
-                    <div class="flex items-center gap-3 mb-3">
-                        <div class="bg-emerald-500 text-white p-2 rounded-lg">
-                            <i data-lucide="settings" class="w-5 h-5"></i>
-                        </div>
-                        <div>
-                            <span class="text-xs font-bold tracking-wider text-emerald-600 uppercase">Factor Type 1</span>
-                            <h3 class="font-extrabold text-lg text-emerald-900">Internal Factors</h3>
-                        </div>
-                    </div>
-                    <div class="bg-emerald-100 text-emerald-800 rounded-lg px-3 py-2 text-xs font-semibold mb-3 inline-block">
-                        ✅ Things we CAN control
-                    </div>
-                    <p class="text-slate-700 text-sm leading-relaxed mb-3">Internal factors are things within the control of the organization. These directly map to <strong>Strengths</strong> and <strong>Weaknesses</strong> in the SWOT matrix.</p>
-                    <div class="bg-white rounded-lg p-3 border border-emerald-200">
-                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Example</p>
-                        <p class="text-sm text-slate-700">Workers spending time fixing computer crashes — a solvable problem through employee training or purchasing better software.</p>
-                    </div>
-                </div>
-
-                <!-- External -->
-                <div class="factor-card bg-orange-50 border-orange-500">
-                    <div class="flex items-center gap-3 mb-3">
-                        <div class="bg-orange-500 text-white p-2 rounded-lg">
-                            <i data-lucide="globe" class="w-5 h-5"></i>
-                        </div>
-                        <div>
-                            <span class="text-xs font-bold tracking-wider text-orange-600 uppercase">Factor Type 2</span>
-                            <h3 class="font-extrabold text-lg text-orange-900">External Factors</h3>
-                        </div>
-                    </div>
-                    <div class="bg-orange-100 text-orange-800 rounded-lg px-3 py-2 text-xs font-semibold mb-3 inline-block">
-                        ⚠️ Things we CANNOT control
-                    </div>
-                    <p class="text-slate-700 text-sm leading-relaxed mb-3">External factors are outside the organization's direct control. These map to <strong>Opportunities</strong> and <strong>Threats</strong> in the SWOT matrix.</p>
-                    <div class="bg-white rounded-lg p-3 border border-orange-200">
-                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Example</p>
-                        <p class="text-sm text-slate-700">Inflation rates of goods due to government regulations — an external force the company must adapt to, not control.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Visual axis -->
-            <div class="mt-5 bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 text-center">Where each SWOT element falls</p>
-                <div class="grid grid-cols-2 gap-px bg-slate-200 rounded-lg overflow-hidden text-sm text-center">
-                    <div class="bg-slate-50 p-2 text-xs font-bold text-slate-500 uppercase col-span-2 grid grid-cols-2">
-                        <span class="text-emerald-600">Internal (controllable)</span>
-                        <span class="text-orange-600">External (uncontrollable)</span>
-                    </div>
-                    <div class="bg-emerald-50 p-3">
+                <div class="grid grid-cols-2 bg-white">
+                    <div class="p-4 border-r border-b border-slate-100 bg-emerald-50">
                         <div class="font-bold text-emerald-700">Strengths</div>
                         <div class="text-xs text-slate-500 mt-0.5">What you do well</div>
                     </div>
-                    <div class="bg-orange-50 p-3">
+                    <div class="p-4 border-b border-slate-100 bg-orange-50">
                         <div class="font-bold text-orange-700">Opportunities</div>
                         <div class="text-xs text-slate-500 mt-0.5">External growth levers</div>
                     </div>
-                    <div class="bg-blue-50 p-3">
+                    <div class="p-4 border-r border-slate-100 bg-blue-50">
                         <div class="font-bold text-blue-700">Weaknesses</div>
                         <div class="text-xs text-slate-500 mt-0.5">Areas to improve</div>
                     </div>
-                    <div class="bg-red-50 p-3">
+                    <div class="p-4 bg-red-50">
                         <div class="font-bold text-red-700">Threats</div>
                         <div class="text-xs text-slate-500 mt-0.5">External risks</div>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- ── SECTION C: Benefits ── -->
-        <section class="mb-12 reveal reveal-3">
-            <div class="flex items-center gap-3 mb-5">
-                <div class="bg-violet-100 p-2.5 rounded-xl"><i data-lucide="star" class="w-6 h-6 text-violet-600"></i></div>
+    <hr class="gold-divider">
+
+    <!-- ══ SECTION C: BENEFITS ══ -->
+    <section id="section-c" class="mb-14 reveal delay-3">
+        <div class="section-header">
+            <div class="section-icon bg-violet-100">
+                <i data-lucide="star" class="w-5 h-5 text-violet-700"></i>
+            </div>
+            <div>
+                <p class="section-label text-violet-500">Section C</p>
+                <h2 class="section-title">Benefits of SWOT Analysis</h2>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-3">
+            <div class="benefit-item">
+                <div class="benefit-num bg-violet-100 text-violet-700">1</div>
                 <div>
-                    <p class="text-xs font-bold tracking-widest text-violet-400 uppercase">Section C</p>
-                    <h2 class="text-2xl font-extrabold text-slate-800">Benefits of SWOT Analysis</h2>
+                    <p class="font-bold text-sm">Identifies capabilities &amp; resources</p>
+                    <p class="text-xs text-slate-500 mt-0.5 leading-relaxed">Reveals an organization's capabilities, resources, and competitive environment.</p>
                 </div>
             </div>
-
-            <div class="grid md:grid-cols-2 gap-3">
-                <!-- Benefit 1 -->
-                <div class="benefit-item">
-                    <div class="benefit-num bg-violet-100 text-violet-700">1</div>
-                    <div>
-                        <p class="font-bold text-sm text-slate-800">Identifies capabilities & resources</p>
-                        <p class="text-xs text-slate-500 mt-0.5 leading-relaxed">Reveals an organization's capabilities, resources, and competitive environment.</p>
-                    </div>
-                </div>
-                <!-- Benefit 2 -->
-                <div class="benefit-item">
-                    <div class="benefit-num bg-blue-100 text-blue-700">2</div>
-                    <div>
-                        <p class="font-bold text-sm text-slate-800">Shapes better marketing strategy</p>
-                        <p class="text-xs text-slate-500 mt-0.5 leading-relaxed">SWOT results directly inform smarter, data-driven marketing decisions.</p>
-                    </div>
-                </div>
-                <!-- Benefit 3 -->
-                <div class="benefit-item">
-                    <div class="benefit-num bg-amber-100 text-amber-700">3</div>
-                    <div>
-                        <p class="font-bold text-sm text-slate-800">Uncovers new ventures & opportunities</p>
-                        <p class="text-xs text-slate-500 mt-0.5 leading-relaxed">Surfaces unexplored opportunities that the company has not yet tapped into.</p>
-                    </div>
-                </div>
-                <!-- Benefit 4 -->
-                <div class="benefit-item">
-                    <div class="benefit-num bg-red-100 text-red-700">4</div>
-                    <div>
-                        <p class="font-bold text-sm text-slate-800">Helps reduce threats</p>
-                        <p class="text-xs text-slate-500 mt-0.5 leading-relaxed">Managers and directors can minimize risks by understanding current weaknesses.</p>
-                    </div>
-                </div>
-                <!-- Benefit 5 -->
-                <div class="benefit-item">
-                    <div class="benefit-num bg-teal-100 text-teal-700">5</div>
-                    <div>
-                        <p class="font-bold text-sm text-slate-800">Serves as a planning technique</p>
-                        <p class="text-xs text-slate-500 mt-0.5 leading-relaxed">Used company-wide as a strategic planning and decision-making framework.</p>
-                    </div>
-                </div>
-                <!-- Benefit 6 -->
-                <div class="benefit-item">
-                    <div class="benefit-num bg-green-100 text-green-700">6</div>
-                    <div>
-                        <p class="font-bold text-sm text-slate-800">Useful for individual career development</p>
-                        <p class="text-xs text-slate-500 mt-0.5 leading-relaxed">Individuals can use SWOT to identify personal skills, opportunities, and abilities.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ── SECTION D: How to Make a SWOT ── -->
-        <section class="mb-12 reveal reveal-4">
-            <div class="flex items-center gap-3 mb-5">
-                <div class="bg-sky-100 p-2.5 rounded-xl"><i data-lucide="list-checks" class="w-6 h-6 text-sky-600"></i></div>
+            <div class="benefit-item">
+                <div class="benefit-num bg-blue-100 text-blue-700">2</div>
                 <div>
-                    <p class="text-xs font-bold tracking-widest text-sky-400 uppercase">Section D</p>
-                    <h2 class="text-2xl font-extrabold text-slate-800">How to Make a SWOT Analysis</h2>
+                    <p class="font-bold text-sm">Shapes better marketing strategy</p>
+                    <p class="text-xs text-slate-500 mt-0.5 leading-relaxed">SWOT results directly inform smarter, data-driven marketing decisions.</p>
                 </div>
             </div>
-
-            <div class="space-y-4">
-                <!-- Step 1 -->
-                <div class="step-card">
-                    <div class="step-num">1</div>
-                    <h4 class="font-bold text-slate-800 mb-1">Define your objective</h4>
-                    <p class="text-sm text-slate-600 leading-relaxed">Make sure the analysis heads in the right direction by clearly defining your goal. Focusing on what matters will eventually provide the right strategy.</p>
-                </div>
-
-                <!-- Step 2 — has sub-topics -->
-                <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-                    <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center gap-3">
-                        <div class="step-num" style="position:static;transform:none;width:36px;height:36px;">2</div>
-                        <h4 class="font-bold text-slate-800">Focus on internal and external factors</h4>
-                    </div>
-                    <div class="grid md:grid-cols-2 gap-px bg-slate-100">
-                        <!-- Strengths -->
-                        <div class="bg-white p-5">
-                            <div class="subtopic bg-emerald-100 text-emerald-800">
-                                <i data-lucide="trending-up" class="w-3.5 h-3.5"></i> Strengths
-                            </div>
-                            <p class="text-sm text-slate-600 leading-relaxed">Identify the things your company does better than the competition. What advantages do you have?</p>
-                        </div>
-                        <!-- Weaknesses -->
-                        <div class="bg-white p-5">
-                            <div class="subtopic bg-blue-100 text-blue-800">
-                                <i data-lucide="trending-down" class="w-3.5 h-3.5"></i> Weaknesses
-                            </div>
-                            <p class="text-sm text-slate-600 leading-relaxed">In what areas are competitors outclassing your company? Where do you fall short?</p>
-                        </div>
-                        <!-- Opportunities -->
-                        <div class="bg-white p-5 border-t border-slate-100">
-                            <div class="subtopic bg-amber-100 text-amber-800">
-                                <i data-lucide="lightbulb" class="w-3.5 h-3.5"></i> Opportunities
-                            </div>
-                            <p class="text-sm text-slate-600 leading-relaxed">What external opportunities can help your company grow and expand into new markets?</p>
-                        </div>
-                        <!-- Threats -->
-                        <div class="bg-white p-5 border-t border-slate-100">
-                            <div class="subtopic bg-red-100 text-red-800">
-                                <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i> Threats
-                            </div>
-                            <p class="text-sm text-slate-600 leading-relaxed">Are there obstacles stopping the company from growing? Rules, regulations, or technology impeding your business?</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ── SECTION E: Coffee Shop SWOT Matrix ── -->
-        <section class="mb-12">
-            <div class="flex items-center gap-3 mb-5">
-                <div class="bg-amber-100 p-2.5 rounded-xl"><i data-lucide="coffee" class="w-6 h-6 text-amber-600"></i></div>
+            <div class="benefit-item">
+                <div class="benefit-num bg-amber-100 text-amber-700">3</div>
                 <div>
-                    <p class="text-xs font-bold tracking-widest text-amber-400 uppercase">Section E</p>
-                    <h2 class="text-2xl font-extrabold text-slate-800">Sample SWOT Matrix: Coffee Shop</h2>
+                    <p class="font-bold text-sm">Uncovers new ventures &amp; opportunities</p>
+                    <p class="text-xs text-slate-500 mt-0.5 leading-relaxed">Surfaces unexplored opportunities that the company has not yet tapped into.</p>
                 </div>
             </div>
-
-            <p class="text-slate-600 text-sm mb-6 leading-relaxed">The following is a SWOT analysis example for a coffee shop startup. Notice how internal factors (S & W) are within the company's control, while external factors (O & T) come from the market environment.</p>
-
-            <div class="swot-grid">
-                <!-- Strengths -->
-                <div class="swot-cell swot-s" data-letter="S">
-                    <div class="swot-label"><i data-lucide="trending-up" style="width:14px;height:14px;"></i> Internal · Positive</div>
-                    <div class="swot-title">Strengths</div>
-                    <div class="swot-item"><div class="swot-dot"></div><span>Close to universities and public transport</span></div>
-                    <div class="swot-item"><div class="swot-dot"></div><span>Cheaper products compared to popular brands</span></div>
-                    <div class="swot-item"><div class="swot-dot"></div><span>Ambiance suited for study and leisure</span></div>
-                    <div class="swot-item"><div class="swot-dot"></div><span>Growing demand for coffee shops across markets</span></div>
-                </div>
-
-                <!-- Weaknesses -->
-                <div class="swot-cell swot-w" data-letter="W">
-                    <div class="swot-label"><i data-lucide="trending-down" style="width:14px;height:14px;"></i> Internal · Negative</div>
-                    <div class="swot-title">Weaknesses</div>
-                    <div class="swot-item"><div class="swot-dot"></div><span>No experience in operating a business</span></div>
-                    <div class="swot-item"><div class="swot-dot"></div><span>Lack of funds for startup capital</span></div>
-                    <div class="swot-item"><div class="swot-dot"></div><span>Less popularity vs. well-known brands</span></div>
-                    <div class="swot-item"><div class="swot-dot"></div><span>Staff needs training for operations</span></div>
-                </div>
-
-                <!-- Opportunities -->
-                <div class="swot-cell swot-o" data-letter="O">
-                    <div class="swot-label"><i data-lucide="lightbulb" style="width:14px;height:14px;"></i> External · Positive</div>
-                    <div class="swot-title">Opportunities</div>
-                    <div class="swot-item"><div class="swot-dot"></div><span>New products and services for market expansion</span></div>
-                    <div class="swot-item"><div class="swot-dot"></div><span>Brand franchising to expand the business</span></div>
-                    <div class="swot-item"><div class="swot-dot"></div><span>Co-branding or strategic alliances</span></div>
-                    <div class="swot-item"><div class="swot-dot"></div><span>Diverse and growing target market</span></div>
-                </div>
-
-                <!-- Threats -->
-                <div class="swot-cell swot-t" data-letter="T">
-                    <div class="swot-label"><i data-lucide="shield-alert" style="width:14px;height:14px;"></i> External · Negative</div>
-                    <div class="swot-title">Threats</div>
-                    <div class="swot-item"><div class="swot-dot"></div><span>Many well-established coffee shop competitors</span></div>
-                    <div class="swot-item"><div class="swot-dot"></div><span>Other startups entering the same space</span></div>
-                    <div class="swot-item"><div class="swot-dot"></div><span>Changing consumer tastes and preferences</span></div>
-                    <div class="swot-item"><div class="swot-dot"></div><span>Rising prices for coffee beans and supplies</span></div>
-                </div>
-            </div>
-
-            <!-- Key takeaway callout -->
-            <div class="mt-6 bg-indigo-50 border border-indigo-200 rounded-xl p-5 flex gap-4">
-                <div class="bg-indigo-500 text-white p-2 rounded-lg flex-shrink-0 self-start">
-                    <i data-lucide="info" class="w-5 h-5"></i>
-                </div>
+            <div class="benefit-item">
+                <div class="benefit-num bg-red-100 text-red-700">4</div>
                 <div>
-                    <p class="font-bold text-indigo-900 mb-1">Key Takeaway</p>
-                    <p class="text-sm text-indigo-800 leading-relaxed">A well-done SWOT analysis lets the coffee shop leverage its <span class="font-semibold">location and pricing</span> (Strengths) to capture <span class="font-semibold">franchise and partnership</span> opportunities (Opportunities), while investing in <span class="font-semibold">staff training</span> (fixing Weaknesses) to withstand <span class="font-semibold">market competition</span> (Threats).</p>
+                    <p class="font-bold text-sm">Helps reduce threats</p>
+                    <p class="text-xs text-slate-500 mt-0.5 leading-relaxed">Managers and directors can minimize risks by understanding current weaknesses.</p>
                 </div>
             </div>
-        </section>
+            <div class="benefit-item">
+                <div class="benefit-num bg-teal-100 text-teal-700">5</div>
+                <div>
+                    <p class="font-bold text-sm">Serves as a planning technique</p>
+                    <p class="text-xs text-slate-500 mt-0.5 leading-relaxed">Used company-wide as a strategic planning and decision-making framework.</p>
+                </div>
+            </div>
+            <div class="benefit-item">
+                <div class="benefit-num bg-green-100 text-green-700">6</div>
+                <div>
+                    <p class="font-bold text-sm">Useful for individual career development</p>
+                    <p class="text-xs text-slate-500 mt-0.5 leading-relaxed">Individuals can apply SWOT to discover personal skills, opportunities, and abilities.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        <!-- ── Navigation + Complete Button ── -->
-        <div class="flex flex-wrap justify-between items-center gap-4 pt-8 border-t border-slate-200">
-            <a href="lesson4.html" class="flex items-center gap-2 bg-slate-600 text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-slate-700 transition action-btn">
+    <hr class="gold-divider">
+
+    <!-- ══ SECTION D: HOW TO MAKE ══ -->
+    <section id="section-d" class="mb-14 reveal delay-4">
+        <div class="section-header">
+            <div class="section-icon bg-sky-100">
+                <i data-lucide="list-checks" class="w-5 h-5 text-sky-700"></i>
+            </div>
+            <div>
+                <p class="section-label text-sky-500">Section D</p>
+                <h2 class="section-title">How to Make a SWOT Analysis</h2>
+            </div>
+        </div>
+
+        <div class="space-y-4">
+            <!-- Step 1 -->
+            <div class="step-card">
+                <div class="step-num">1</div>
+                <h4 class="font-bold text-slate-800 mb-1">Define your objective</h4>
+                <p class="text-sm text-slate-600 leading-relaxed">Make sure the analysis heads in the right direction by clearly defining your goal. Focusing on what matters will eventually provide the right strategy.</p>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="card overflow-hidden">
+                <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center gap-3">
+                    <div style="width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#2454a4,#1a3560);color:white;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;font-family:'Nunito',sans-serif;flex-shrink:0;box-shadow:0 4px 10px rgba(36,84,164,0.3);">2</div>
+                    <h4 class="font-bold text-slate-800">Focus on internal and external factors</h4>
+                </div>
+                <div class="grid md:grid-cols-2 divide-x divide-y divide-slate-100">
+                    <div class="p-5">
+                        <div class="subtopic bg-emerald-100 text-emerald-800">
+                            <i data-lucide="trending-up" class="w-3.5 h-3.5"></i> Strengths
+                        </div>
+                        <p class="text-sm text-slate-600 leading-relaxed">Identify the things your company does better than the competition. What advantages do you have?</p>
+                    </div>
+                    <div class="p-5">
+                        <div class="subtopic bg-blue-100 text-blue-800">
+                            <i data-lucide="trending-down" class="w-3.5 h-3.5"></i> Weaknesses
+                        </div>
+                        <p class="text-sm text-slate-600 leading-relaxed">In what areas are competitors outclassing your company? Where do you fall short?</p>
+                    </div>
+                    <div class="p-5">
+                        <div class="subtopic bg-amber-100 text-amber-800">
+                            <i data-lucide="lightbulb" class="w-3.5 h-3.5"></i> Opportunities
+                        </div>
+                        <p class="text-sm text-slate-600 leading-relaxed">What external opportunities can help your company grow and expand into new markets?</p>
+                    </div>
+                    <div class="p-5">
+                        <div class="subtopic bg-red-100 text-red-800">
+                            <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i> Threats
+                        </div>
+                        <p class="text-sm text-slate-600 leading-relaxed">Are there obstacles stopping the company from growing? Rules, regulations, or technology impeding growth?</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="step-card">
+                <div class="step-num">3</div>
+                <h4 class="font-bold text-slate-800 mb-1">Prioritize and rank findings</h4>
+                <p class="text-sm text-slate-600 leading-relaxed">Not all factors carry equal weight. After listing them, rank each item by importance or impact so your team knows which to address first.</p>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="step-card">
+                <div class="step-num">4</div>
+                <h4 class="font-bold text-slate-800 mb-1">Develop action strategies</h4>
+                <p class="text-sm text-slate-600 leading-relaxed">Use the completed matrix to generate strategies: leverage Strengths to pursue Opportunities, use Strengths to counter Threats, improve Weaknesses, and plan for external risks.</p>
+            </div>
+        </div>
+    </section>
+
+    <hr class="gold-divider">
+
+    <!-- ══ SECTION E: SAMPLE SWOT MATRIX ══ -->
+    <section id="section-e" class="mb-14 reveal delay-5">
+        <div class="section-header">
+            <div class="section-icon bg-amber-100">
+                <i data-lucide="coffee" class="w-5 h-5 text-amber-700"></i>
+            </div>
+            <div>
+                <p class="section-label text-amber-500">Section E</p>
+                <h2 class="section-title">Sample SWOT Matrix: Coffee Shop</h2>
+            </div>
+        </div>
+
+        <p class="text-slate-600 text-sm mb-6 leading-relaxed max-w-3xl">The following is a SWOT analysis for a coffee shop startup. Notice how internal factors (S &amp; W) are within the company's control, while external factors (O &amp; T) come from the market environment.</p>
+
+        <div class="swot-grid mb-6">
+            <div class="swot-cell swot-s" data-letter="S">
+                <div class="swot-label"><i data-lucide="trending-up" style="width:13px;height:13px;"></i> Internal · Positive</div>
+                <div class="swot-title">Strengths</div>
+                <div class="swot-item"><div class="swot-dot"></div><span>Close to universities and public transport</span></div>
+                <div class="swot-item"><div class="swot-dot"></div><span>Cheaper products vs. popular brands</span></div>
+                <div class="swot-item"><div class="swot-dot"></div><span>Ambiance suited for study and leisure</span></div>
+                <div class="swot-item"><div class="swot-dot"></div><span>Growing demand for coffee shops across markets</span></div>
+            </div>
+            <div class="swot-cell swot-w" data-letter="W">
+                <div class="swot-label"><i data-lucide="trending-down" style="width:13px;height:13px;"></i> Internal · Negative</div>
+                <div class="swot-title">Weaknesses</div>
+                <div class="swot-item"><div class="swot-dot"></div><span>No experience in operating a business</span></div>
+                <div class="swot-item"><div class="swot-dot"></div><span>Lack of funds for startup capital</span></div>
+                <div class="swot-item"><div class="swot-dot"></div><span>Less brand recognition vs. established chains</span></div>
+                <div class="swot-item"><div class="swot-dot"></div><span>Staff needs training for operations</span></div>
+            </div>
+            <div class="swot-cell swot-o" data-letter="O">
+                <div class="swot-label"><i data-lucide="lightbulb" style="width:13px;height:13px;"></i> External · Positive</div>
+                <div class="swot-title">Opportunities</div>
+                <div class="swot-item"><div class="swot-dot"></div><span>New products and services for expansion</span></div>
+                <div class="swot-item"><div class="swot-dot"></div><span>Brand franchising potential</span></div>
+                <div class="swot-item"><div class="swot-dot"></div><span>Co-branding or strategic alliances</span></div>
+                <div class="swot-item"><div class="swot-dot"></div><span>Diverse and growing target market</span></div>
+            </div>
+            <div class="swot-cell swot-t" data-letter="T">
+                <div class="swot-label"><i data-lucide="shield-alert" style="width:13px;height:13px;"></i> External · Negative</div>
+                <div class="swot-title">Threats</div>
+                <div class="swot-item"><div class="swot-dot"></div><span>Many well-established coffee shop competitors</span></div>
+                <div class="swot-item"><div class="swot-dot"></div><span>Other startups entering the same space</span></div>
+                <div class="swot-item"><div class="swot-dot"></div><span>Changing consumer tastes and preferences</span></div>
+                <div class="swot-item"><div class="swot-dot"></div><span>Rising prices of coffee beans and supplies</span></div>
+            </div>
+        </div>
+
+        <div class="takeaway">
+            <div class="takeaway-icon">
+                <i data-lucide="info" class="w-5 h-5"></i>
+            </div>
+            <div>
+                <p class="font-bold text-blue-900 mb-1">Key Takeaway</p>
+                <p class="text-sm text-blue-800 leading-relaxed">A well-done SWOT lets the coffee shop leverage its <strong>location and pricing</strong> (Strengths) to capture <strong>franchise and partnership</strong> opportunities, while investing in <strong>staff training</strong> (fixing Weaknesses) to withstand <strong>market competition</strong> (Threats).</p>
+            </div>
+        </div>
+    </section>
+
+    <hr class="gold-divider">
+
+    <!-- ══ SECTION F: YOUTUBE VIDEOS ══ -->
+    <section id="section-f" class="mb-14 reveal delay-6">
+        <div class="section-header">
+            <div class="section-icon bg-red-100">
+                <i data-lucide="youtube" class="w-5 h-5 text-red-600"></i>
+            </div>
+            <div>
+                <p class="section-label text-red-500">Section F · Supplementary Videos</p>
+                <h2 class="section-title">Watch &amp; Learn: SWOT in Action</h2>
+            </div>
+        </div>
+
+        <p class="text-slate-600 text-sm mb-6 leading-relaxed">Watch these short videos for concrete, real-world examples of SWOT Analysis. These will reinforce the concepts from this lesson and show how professionals actually use the framework.</p>
+
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+
+            <!-- Video 1: What is SWOT -->
+            <div class="video-card">
+                <div class="video-wrap">
+                    <iframe
+                        src="https://www.youtube.com/embed/JXXHqM6RzZQ"
+                        title="What is SWOT Analysis? A Beginner's Guide"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen
+                        loading="lazy">
+                    </iframe>
+                </div>
+                <div class="video-label">
+                    <span class="yt-badge">YouTube</span>
+                    <div>
+                        <p class="font-bold text-sm text-slate-800 leading-snug">What is SWOT Analysis? A Beginner's Guide</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Step-by-step walkthrough of SWOT with clear visuals</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Video 2: SWOT for Business -->
+            <div class="video-card">
+                <div class="video-wrap">
+                    <iframe
+                        src="https://www.youtube.com/embed/I_6AVRGLXGA"
+                        title="SWOT Analysis - How to Do a SWOT Analysis"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen
+                        loading="lazy">
+                    </iframe>
+                </div>
+                <div class="video-label">
+                    <span class="yt-badge">YouTube</span>
+                    <div>
+                        <p class="font-bold text-sm text-slate-800 leading-snug">How to Do a SWOT Analysis for Business</p>
+                        <p class="text-xs text-slate-500 mt-0.5">A practical business-focused example with real scenarios</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Full-width Video 3: Personal SWOT -->
+        <div class="video-card mb-4">
+            <div class="video-wrap" style="padding-bottom:56.25%;">
+                <iframe
+                    src="https://www.youtube.com/embed/o0E5KFyDyFc"
+                    title="Personal SWOT Analysis - Know Yourself to Grow"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen
+                    loading="lazy">
+                </iframe>
+            </div>
+            <div class="video-label">
+                <span class="yt-badge">YouTube</span>
+                <div>
+                    <p class="font-bold text-sm text-slate-800 leading-snug">Personal SWOT Analysis — Know Yourself to Grow</p>
+                    <p class="text-xs text-slate-500 mt-0.5">How to apply SWOT to yourself for career and personal development — relevant to Section C Benefit #6</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pro-tip callout -->
+        <div class="flex gap-3 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+            <div class="text-2xl">💡</div>
+            <div>
+                <p class="font-bold text-yellow-800 text-sm mb-0.5">Pro Tip</p>
+                <p class="text-xs text-yellow-700 leading-relaxed">After watching, try to identify the S-W-O-T elements mentioned in each video. This active watching strategy makes the content stick better for exams and real-world application.</p>
+            </div>
+        </div>
+    </section>
+
+    <hr class="gold-divider">
+
+    <!-- ══ SECTION G: CANVA VISUAL AID ══ -->
+    <section id="section-g" class="mb-14 reveal delay-6">
+        <div class="section-header">
+            <div class="section-icon bg-purple-100">
+                <i data-lucide="presentation" class="w-5 h-5 text-purple-700"></i>
+            </div>
+            <div>
+                <p class="section-label text-purple-500">Section G · Interactive Visual Aid</p>
+                <h2 class="section-title">Lesson Presentation &amp; Infographic</h2>
+            </div>
+        </div>
+
+        <p class="text-slate-600 text-sm mb-5 leading-relaxed">Explore the lesson's visual summary below. This interactive Canva presentation covers all key SWOT concepts in an easy-to-review format — great for study and review.</p>
+
+        <div class="canva-wrapper">
+            <div class="canva-header">
+                <div style="background:white;border-radius:8px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#7c3aed"/><path d="M8 12h8M12 8v8" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+                </div>
+                <span class="text-white font-bold text-sm">Lesson 5 — SWOT Analysis Visual Aid</span>
+                <span class="canva-badge ml-auto">Canva · Interactive</span>
+            </div>
+            <div class="canva-container">
+                <iframe
+                    loading="lazy"
+                    style="border:none;position:absolute;top:0;left:0;width:100%;height:100%;"
+                    src="https://www.canva.com/design/DAGpJ_WQexo/hDZ5RtHmfGHZk-rN_x2D5Q/view?embed"
+                    allowfullscreen="allowfullscreen"
+                    allow="fullscreen">
+                </iframe>
+            </div>
+            <div style="background:#f8f5ff;border-top:1px solid #e8d9ff;padding:12px 20px;display:flex;align-items:center;justify-between;gap:12px;flex-wrap:wrap;">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="zoom-in" class="w-4 h-4 text-purple-500"></i>
+                    <span class="text-xs text-purple-700 font-semibold">Click inside the presentation to navigate slides</span>
+                </div>
+                <a href="https://canva.link/5bjx5mbxc7we7im" target="_blank" rel="noopener noreferrer"
+                   style="display:inline-flex;align-items:center;gap:6px;background:#7c3aed;color:white;font-size:12px;font-weight:700;padding:7px 16px;border-radius:999px;text-decoration:none;transition:all 0.2s;"
+                   onmouseover="this.style.background='#6d28d9'" onmouseout="this.style.background='#7c3aed'">
+                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                    Open in Canva
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ LESSON NAVIGATION + COMPLETE ══ -->
+    <div class="border-t-2 border-dashed border-slate-200 pt-10">
+        <div class="flex flex-wrap justify-between items-center gap-4">
+            <a href="lesson4.html" class="nav-btn">
                 <i data-lucide="arrow-left" class="w-4 h-4"></i> Lesson 4
             </a>
 
-            <button id="completeLessonBtn" onclick="markLesson5Complete()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-7 py-3 rounded-full font-bold transition action-btn flex items-center gap-2 shadow-lg">
+            <button id="completeLessonBtn" onclick="markLesson5Complete()" class="complete-btn">
                 <i data-lucide="check-circle" class="w-5 h-5"></i>
-                <span>✅ Mark Lesson as Complete</span>
+                <span>Mark Lesson as Complete</span>
             </button>
 
-            <div class="text-slate-400 text-sm flex items-center gap-2">
+            <div class="flex items-center gap-2 text-slate-400 text-sm">
                 <i data-lucide="lock" class="w-4 h-4"></i>
                 <span>Lesson 6 unlocks after completion</span>
             </div>
         </div>
 
-        <p class="text-center text-xs text-slate-500 mt-6">Completing this lesson saves your progress and unlocks Lesson 6: Writing Business and Technical Reports.</p>
-    </main>
+        <p class="text-center text-xs text-slate-400 mt-5">
+            Completing this lesson saves your progress to Firestore and unlocks <strong>Lesson 6: Writing Business and Technical Reports</strong>.
+        </p>
+    </div>
 
-    <!-- Footer -->
-    <footer class="lesson-gradient text-white py-8 mt-12">
-        <div class="container mx-auto px-4 text-center">
-            <p class="font-semibold">Lesson 5: Communication for Business and Trade</p>
-            <p class="text-sm opacity-70 mt-1">Purposive Communication | Asynchronous Class</p>
-        </div>
-    </footer>
+</main>
 
-    <script>lucide.createIcons();</script>
+<!-- ── FOOTER ── -->
+<footer style="background:var(--navy);color:white;padding:36px 0;margin-top:60px;border-top:3px solid var(--gold);">
+    <div class="container mx-auto px-4 text-center">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold-light);margin-bottom:6px;">Purposive Communication</div>
+        <p style="font-weight:700;font-size:16px;margin-bottom:4px;">Lesson 5: Communication for Business and Trade</p>
+        <p style="font-size:13px;opacity:0.55;">Asynchronous Class · SWOT Analysis</p>
+    </div>
+</footer>
+
+<script>
+    lucide.createIcons();
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+            const target = document.querySelector(a.getAttribute('href'));
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+
+    // Intersection Observer for reveal animations
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.08 });
+    reveals.forEach(el => {
+        el.style.animationPlayState = 'paused';
+        observer.observe(el);
+    });
+</script>
+
 </body>
 </html>
