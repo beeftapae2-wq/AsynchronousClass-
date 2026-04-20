@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 6: Writing Business and Technical Reports | Purposive Communication</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBUeClSBF_9QTKQMOVh7iXQTRGZugbAyi8",
+            authDomain: "asynchronousclass-61231.firebaseapp.com",
+            projectId: "asynchronousclass-61231",
+            storageBucket: "asynchronousclass-61231.firebasestorage.app",
+            messagingSenderId: "488059356162",
+            appId: "1:488059356162:web:c6a5b9553062ae210b531b",
+            measurementId: "G-57GNQTZWZP"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        const userName = localStorage.getItem('userName');
+        if (!isLoggedIn || !userName) {
+            window.location.href = 'login.html';
+        }
+
+        async function checkAccess() {
+            try {
+                const classSnap = await getDoc(doc(db, 'classConfig', 'lessonAccess'));
+                if (classSnap.exists() && !classSnap.data().lesson6?.unlocked) {
+                    alert('🔒 Lesson 6 is not yet unlocked. Please complete previous lessons first.');
+                    window.location.href = 'index.html';
+                    return;
+                }
+            } catch (err) {
+                console.error('Access check error:', err);
+            }
+        }
+
+        window.markLesson6Complete = async function() {
+            const btn = document.getElementById('completeLessonBtn');
+            btn.disabled = true;
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<span class="flex items-center gap-2"><svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>Saving...</span>';
+
+            try {
+                const userRef = doc(db, 'users', userName, 'data', 'progress');
+                const userSnap = await getDoc(userRef);
+                let userData = userSnap.exists() ? userSnap.data() : {};
+
+                userData.lesson6 = { completed: true };
+                if (!userData.lesson7) userData.lesson7 = { completed: false };
+                await setDoc(userRef, userData, { merge: true });
+
+                const classRef = doc(db, 'classConfig', 'lessonAccess');
+                await setDoc(classRef, { lesson7: { unlocked: true } }, { merge: true });
+
+                let lessonAccess = JSON.parse(localStorage.getItem('lessonAccess')) || {};
+                if (!lessonAccess.lesson6) lessonAccess.lesson6 = {};
+                lessonAccess.lesson6.completed = true;
+                if (!lessonAccess.lesson7) lessonAccess.lesson7 = {};
+                lessonAccess.lesson7.unlocked = true;
+                localStorage.setItem('lessonAccess', JSON.stringify(lessonAccess));
+
+                alert('✅ Lesson 6 completed! Lesson 7 is now unlocked. Returning to dashboard...');
+                window.location.href = 'index.html';
+
+            } catch (err) {
+                console.error('Save error:', err);
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
+                lucide.createIcons();
+                alert('⚠️ Could not save progress. Please check your connection and try again.');
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', checkAccess);
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --navy: #0f1f3d;
+            --navy-mid: #1a3560;
+            --blue: #2454a4;
+            --blue-light: #3b6fd4;
+            --gold: #e8a020;
+            --gold-light: #f5bc4a;
+            --cream: #faf7f0;
+            --slate-soft: #f0f4f8;
+            --text-main: #1a2742;
+            --text-muted: #5a6a82;
+            --border: #dde3ee;
+            --teal: #0d7377;
+            --teal-light: #14a085;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--cream);
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4, h5, h6 { font-family: 'Nunito', sans-serif; }
+
+        /* NAV */
+        .top-nav {
+            background: var(--navy);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 3px solid var(--gold);
+        }
+
+        /* HERO */
+        .hero {
+            background: linear-gradient(150deg, #0a1628 0%, #112240 55%, #0d2d5e 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -120px; right: -120px;
+            width: 520px; height: 520px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(232,160,32,0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -80px; left: -80px;
+            width: 380px; height: 380px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(13,115,119,0.18) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .lesson-tag {
+            background: var(--gold);
+            color: var(--navy);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 3px 12px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+        .hero-icon-wrap {
+            background: rgba(232,160,32,0.15);
+            border: 2px solid rgba(232,160,32,0.3);
+            border-radius: 20px;
+            padding: 14px;
+            display: inline-block;
+            margin-bottom: 16px;
+        }
+
+        /* SECTION HEADERS */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid var(--border);
+        }
+        .section-icon {
+            width: 42px; height: 42px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .section-label {
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+        .section-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-main);
+            line-height: 1.1;
+        }
+
+        /* CARDS */
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .card:hover { box-shadow: 0 8px 28px rgba(15,31,61,0.09); transform: translateY(-2px); }
+
+        /* DEFINITION BOX */
+        .definition-box {
+            background: linear-gradient(135deg, #0d2d5e 0%, #0a1628 100%);
+            border-radius: 16px;
+            padding: 32px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .definition-box::after {
+            content: 'REPORT';
+            position: absolute;
+            right: -20px; bottom: -30px;
+            font-size: 90px;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 900;
+            opacity: 0.06;
+            line-height: 1;
+            pointer-events: none;
+        }
+
+        /* CHARACTERISTIC ITEMS */
+        .char-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 14px 18px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+        .char-item:hover {
+            border-color: var(--teal-light);
+            box-shadow: 0 4px 14px rgba(13,115,119,0.08);
+        }
+        .char-num {
+            width: 32px; height: 32px;
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 13px;
+            font-family: 'Nunito', sans-serif;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, var(--teal), var(--teal-light));
+            color: white;
+        }
+
+        /* CATEGORY CARDS */
+        .category-card {
+            background: white;
+            border-radius: 14px;
+            padding: 22px 24px;
+            border-left: 4px solid;
+            border-top: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+        .category-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.07); }
+
+        /* TYPE ROWS */
+        .type-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 16px 18px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+        .type-row:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.07); border-color: #c7d2fe; }
+        .type-letter {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 14px;
+            font-family: 'Nunito', sans-serif;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        /* PARTS TABLE */
+        .parts-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(15,31,61,0.08);
+        }
+        .parts-table thead tr {
+            background: linear-gradient(135deg, var(--navy), var(--navy-mid));
+            color: white;
+        }
+        .parts-table thead th {
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        .parts-table tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background 0.15s;
+        }
+        .parts-table tbody tr:last-child { border-bottom: none; }
+        .parts-table tbody tr:hover { background: #f0f6ff; }
+        .parts-table tbody tr:nth-child(even) { background: #fafbff; }
+        .parts-table tbody tr:nth-child(even):hover { background: #f0f6ff; }
+        .parts-table td {
+            padding: 14px 16px;
+            font-size: 13px;
+            vertical-align: top;
+            line-height: 1.55;
+        }
+        .parts-table td:first-child {
+            font-weight: 700;
+            color: var(--navy);
+            white-space: nowrap;
+        }
+        .parts-table td ul {
+            padding-left: 16px;
+            margin: 4px 0;
+        }
+        .parts-table td ul li {
+            margin-bottom: 4px;
+            color: var(--text-muted);
+        }
+        .part-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            white-space: nowrap;
+        }
+        .lang-tag {
+            display: inline-block;
+            background: #eef2ff;
+            color: #4338ca;
+            border: 1px solid #c7d2fe;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* CANVA EMBED */
+        .canva-wrapper {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 12px 40px rgba(15,31,61,0.1);
+        }
+        .canva-header {
+            background: linear-gradient(90deg, #0d7377, #14a085);
+            padding: 14px 22px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .canva-badge {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 3px 10px;
+            border-radius: 999px;
+        }
+        .canva-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            background: #f5f5f5;
+        }
+        .canva-container iframe {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border: none;
+        }
+
+        /* COMPLETE BUTTON */
+        .complete-btn {
+            background: linear-gradient(135deg, #059669, #047857);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 999px;
+            font-weight: 800;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            box-shadow: 0 6px 20px rgba(5,150,105,0.35);
+        }
+        .complete-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(5,150,105,0.45);
+        }
+        .complete-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--navy);
+            color: white;
+            padding: 10px 22px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover { background: var(--navy-mid); transform: translateY(-1px); }
+
+        /* GOLD DIVIDER */
+        .gold-divider {
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            border: none;
+            margin: 48px 0;
+            opacity: 0.5;
+        }
+
+        /* PROGRESS BAR */
+        .progress-bar-wrap {
+            background: rgba(255,255,255,0.12);
+            border-radius: 999px;
+            height: 6px;
+            width: 120px;
+        }
+        .progress-bar-fill {
+            background: var(--gold);
+            height: 100%;
+            border-radius: 999px;
+            width: 75%; /* lesson 6 of 8 */
+        }
+
+        /* TAKEAWAY */
+        .takeaway {
+            background: linear-gradient(135deg, #f0fdf8, #ecfdf5);
+            border: 1px solid #a7f3d0;
+            border-radius: 14px;
+            padding: 22px;
+            display: flex;
+            gap: 16px;
+        }
+        .takeaway-icon {
+            background: var(--teal);
+            color: white;
+            padding: 8px;
+            border-radius: 10px;
+            flex-shrink: 0;
+            align-self: flex-start;
+        }
+
+        /* ANIMATIONS */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(22px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .reveal { animation: fadeUp 0.55s ease forwards; opacity: 0; }
+        .delay-1 { animation-delay: 0.05s; }
+        .delay-2 { animation-delay: 0.15s; }
+        .delay-3 { animation-delay: 0.25s; }
+        .delay-4 { animation-delay: 0.35s; }
+        .delay-5 { animation-delay: 0.45s; }
+        .delay-6 { animation-delay: 0.55s; }
+
+        /* TABLE WRAPPER for horizontal scroll on mobile */
+        .table-scroll {
+            overflow-x: auto;
+            border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(15,31,61,0.08);
+        }
+
+        @media (max-width: 640px) {
+            .parts-table td, .parts-table th { padding: 10px 12px; font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="top-nav text-white shadow-lg">
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center h-16">
+            <a href="index.html" class="flex items-center gap-2 font-bold text-base hover:opacity-75 transition">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                <span>Back to Dashboard</span>
+            </a>
+            <div class="flex items-center gap-3">
+                <div class="progress-bar-wrap">
+                    <div class="progress-bar-fill"></div>
+                </div>
+                <span class="text-xs font-semibold opacity-70">Lesson 6 of 8</span>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero text-white py-16 relative">
+    <div class="container mx-auto px-4 text-center relative z-10 max-w-3xl">
+        <div class="lesson-tag">Lesson 6</div>
+        <div class="hero-icon-wrap">
+            <i data-lucide="file-text" class="w-14 h-14 text-yellow-300"></i>
+        </div>
+        <h1 class="text-4xl md:text-5xl font-black mb-4 leading-tight tracking-tight">
+            Writing Business &amp;<br>Technical Reports
+        </h1>
+        <p class="text-lg opacity-75 max-w-xl mx-auto leading-relaxed mb-8">
+            Learn the structure, types, and characteristics of formal and informal business reports — essential communication tools in any professional setting.
+        </p>
+        <!-- Quick jump nav -->
+        <div class="flex flex-wrap justify-center gap-2 text-sm">
+            <a href="#section-a" class="bg-white/10 hover:bg-white/20 transition px-4 py-1.5 rounded-full font-semibold text-xs">📖 Definition</a>
+            <a href="#section-b" class="bg-white/10 hover:bg-white/20 transition px-4 py-1.5 rounded-full font-semibold text-xs">✅ Characteristics</a>
+            <a href="#section-c" class="bg-white/10 hover:bg-white/20 transition px-4 py-1.5 rounded-full font-semibold text-xs">📂 Categories</a>
+            <a href="#section-d" class="bg-white/10 hover:bg-white/20 transition px-4 py-1.5 rounded-full font-semibold text-xs">📋 Parts of a Report</a>
+            <a href="#section-e" class="bg-white/10 hover:bg-white/20 transition px-4 py-1.5 rounded-full font-semibold text-xs">📊 Visual Aid</a>
+            <a href="#section-f" class="bg-white/10 hover:bg-white/20 transition px-4 py-1.5 rounded-full font-semibold text-xs">▶️ Videos</a>
+        </div>
+    </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="container mx-auto px-4 py-12 max-w-5xl">
+
+    <!-- ══ SECTION A: DEFINITION ══ -->
+    <section id="section-a" class="mb-14 reveal delay-1">
+        <div class="section-header">
+            <div class="section-icon bg-teal-100">
+                <i data-lucide="book-open" class="w-5 h-5 text-teal-700"></i>
+            </div>
+            <div>
+                <p class="section-label text-teal-600">Section A</p>
+                <h2 class="section-title">What is a Report?</h2>
+            </div>
+        </div>
+
+        <div class="definition-box mb-6">
+            <div class="flex items-start gap-4">
+                <div class="bg-white/15 p-2.5 rounded-xl flex-shrink-0 mt-0.5">
+                    <i data-lucide="file-text" class="w-7 h-7 text-yellow-300"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-2 text-yellow-200">Definition</h3>
+                    <p class="opacity-90 leading-relaxed">A <strong class="text-yellow-300">report</strong> is a comprehensive document that covers all aspects of the subject matter of study. It presents results of an experiment, investigation, research, or an inquiry to a specific audience.</p>
+                    <div class="mt-4 bg-white/10 rounded-lg px-4 py-2 text-sm font-semibold text-yellow-100 inline-block">
+                        💡 Used in business, academia, government, and scientific research
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <hr class="gold-divider">
+
+    <!-- ══ SECTION B: CHARACTERISTICS ══ -->
+    <section id="section-b" class="mb-14 reveal delay-2">
+        <div class="section-header">
+            <div class="section-icon bg-teal-100">
+                <i data-lucide="check-square" class="w-5 h-5 text-teal-700"></i>
+            </div>
+            <div>
+                <p class="section-label text-teal-600">Section B</p>
+                <h2 class="section-title">Characteristics of a Report</h2>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-3">
+            <div class="char-item">
+                <div class="char-num">1</div>
+                <div>
+                    <p class="font-bold text-sm">Presents information, not argument</p>
+                    <p class="text-xs text-slate-500 mt-0.5">Reports convey factual findings objectively — they do not persuade or debate.</p>
+                </div>
+            </div>
+            <div class="char-item">
+                <div class="char-num">2</div>
+                <div>
+                    <p class="font-bold text-sm">Meant to be scanned quickly</p>
+                    <p class="text-xs text-slate-500 mt-0.5">Structure allows busy readers to locate key information fast.</p>
+                </div>
+            </div>
+            <div class="char-item">
+                <div class="char-num">3</div>
+                <div>
+                    <p class="font-bold text-sm">Uses numbered headings &amp; subheadings</p>
+                    <p class="text-xs text-slate-500 mt-0.5">Hierarchical structure helps readers navigate large documents with ease.</p>
+                </div>
+            </div>
+            <div class="char-item">
+                <div class="char-num">4</div>
+                <div>
+                    <p class="font-bold text-sm">Short and concise paragraphs</p>
+                    <p class="text-xs text-slate-500 mt-0.5">Dense writing is avoided — clarity and brevity are prioritized.</p>
+                </div>
+            </div>
+            <div class="char-item">
+                <div class="char-num">5</div>
+                <div>
+                    <p class="font-bold text-sm">Uses graphic illustrations</p>
+                    <p class="text-xs text-slate-500 mt-0.5">Tables, graphs, and pie charts support and visualize data findings.</p>
+                </div>
+            </div>
+            <div class="char-item">
+                <div class="char-num">6</div>
+                <div>
+                    <p class="font-bold text-sm">May or may not have references</p>
+                    <p class="text-xs text-slate-500 mt-0.5">A bibliography is included when sources were used; otherwise it may be omitted.</p>
+                </div>
+            </div>
+            <div class="char-item md:col-span-2">
+                <div class="char-num">7</div>
+                <div>
+                    <p class="font-bold text-sm">Often contains recommendations and/or appendices</p>
+                    <p class="text-xs text-slate-500 mt-0.5">Practical suggestions and supplementary materials are typically included to support the report's conclusions.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <hr class="gold-divider">
+
+    <!-- ══ SECTION C: CATEGORIES ══ -->
+    <section id="section-c" class="mb-14 reveal delay-3">
+        <div class="section-header">
+            <div class="section-icon bg-amber-100">
+                <i data-lucide="layers" class="w-5 h-5 text-amber-700"></i>
+            </div>
+            <div>
+                <p class="section-label text-amber-600">Section C</p>
+                <h2 class="section-title">Report Categories</h2>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-5 mb-6">
+            <!-- Informal -->
+            <div class="category-card" style="border-left-color:#d97706;">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="bg-amber-500 text-white p-2 rounded-lg">
+                        <i data-lucide="mail" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold tracking-wider text-amber-600 uppercase">Category 1</span>
+                        <h3 class="font-extrabold text-lg text-amber-900">Informal Report</h3>
+                    </div>
+                </div>
+                <p class="text-slate-600 text-sm leading-relaxed mb-3">Functions to <strong>inform, analyse, and recommend</strong>. May be a memo, financial report, monthly activities report, or development report. Written according to an institution's style — introductory and prefatory parts are not required. Used for conveying <strong>routine messages</strong>.</p>
+                <div class="bg-amber-50 border border-amber-100 rounded-lg p-3">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Types of Informal Report</p>
+                    <div class="space-y-2">
+                        <div class="type-row" style="padding:10px 12px;">
+                            <div class="type-letter" style="background:#d97706;width:28px;height:28px;font-size:11px;">A</div>
+                            <div><p class="font-bold text-xs">Progress Report</p><p class="text-xs text-slate-500">Provides information about how a project is developing.</p></div>
+                        </div>
+                        <div class="type-row" style="padding:10px 12px;">
+                            <div class="type-letter" style="background:#b45309;width:28px;height:28px;font-size:11px;">B</div>
+                            <div><p class="font-bold text-xs">Sales Activity Report</p><p class="text-xs text-slate-500">Helps a firm understand sales progress and identify shortcomings.</p></div>
+                        </div>
+                        <div class="type-row" style="padding:10px 12px;">
+                            <div class="type-letter" style="background:#92400e;width:28px;height:28px;font-size:11px;">C</div>
+                            <div><p class="font-bold text-xs">Personnel Evaluation</p><p class="text-xs text-slate-500">Used to assess an employee's performance.</p></div>
+                        </div>
+                        <div class="type-row" style="padding:10px 12px;">
+                            <div class="type-letter" style="background:#78350f;width:28px;height:28px;font-size:11px;">D</div>
+                            <div><p class="font-bold text-xs">Financial Report</p><p class="text-xs text-slate-500">Presents formal records of financial activities of a business or entity.</p></div>
+                        </div>
+                        <div class="type-row" style="padding:10px 12px;">
+                            <div class="type-letter" style="background:#d97706;width:28px;height:28px;font-size:11px;">E</div>
+                            <div><p class="font-bold text-xs">Feasibility Report</p><p class="text-xs text-slate-500">Assesses the viability of a new project and persuades decision makers.</p></div>
+                        </div>
+                        <div class="type-row" style="padding:10px 12px;">
+                            <div class="type-letter" style="background:#b45309;width:28px;height:28px;font-size:11px;">F</div>
+                            <div><p class="font-bold text-xs">Literature Review</p><p class="text-xs text-slate-500">Conveys existing knowledge and ideas established on a research topic.</p></div>
+                        </div>
+                        <div class="type-row" style="padding:10px 12px;">
+                            <div class="type-letter" style="background:#92400e;width:28px;height:28px;font-size:11px;">G</div>
+                            <div><p class="font-bold text-xs">Credit Report</p><p class="text-xs text-slate-500">Details an individual's credit history prepared by a credit bureau.</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formal -->
+            <div class="category-card" style="border-left-color:#0d7377;">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="bg-teal-600 text-white p-2 rounded-lg">
+                        <i data-lucide="briefcase" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold tracking-wider text-teal-600 uppercase">Category 2</span>
+                        <h3 class="font-extrabold text-lg text-teal-900">Formal Report</h3>
+                    </div>
+                </div>
+                <p class="text-slate-600 text-sm leading-relaxed mb-3">An <strong>official report</strong> that contains a collection of detailed information, research, and data necessary for making decisions. It is formal, complex, and used at an official level — often a written account of a major project.</p>
+                <div class="bg-teal-50 border border-teal-100 rounded-lg p-3 space-y-2">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Examples include:</p>
+                    <div class="flex items-start gap-2 text-sm text-teal-800">
+                        <i data-lucide="chevron-right" class="w-4 h-4 mt-0.5 flex-shrink-0 text-teal-500"></i>
+                        <span>Launching a new technology or project line</span>
+                    </div>
+                    <div class="flex items-start gap-2 text-sm text-teal-800">
+                        <i data-lucide="chevron-right" class="w-4 h-4 mt-0.5 flex-shrink-0 text-teal-500"></i>
+                        <span>Results of a study or experiment</span>
+                    </div>
+                    <div class="flex items-start gap-2 text-sm text-teal-800">
+                        <i data-lucide="chevron-right" class="w-4 h-4 mt-0.5 flex-shrink-0 text-teal-500"></i>
+                        <span>A review of developments in a field</span>
+                    </div>
+                </div>
+                <div class="mt-3 flex gap-2 flex-wrap">
+                    <span class="part-badge" style="background:#ccfbf1;color:#0f766e;">Formal &amp; Complex</span>
+                    <span class="part-badge" style="background:#cffafe;color:#0e7490;">Official Level</span>
+                    <span class="part-badge" style="background:#d1fae5;color:#047857;">Major Projects</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <hr class="gold-divider">
+
+    <!-- ══ SECTION D: PARTS OF A REPORT TABLE ══ -->
+    <section id="section-d" class="mb-14 reveal delay-4">
+        <div class="section-header">
+            <div class="section-icon bg-indigo-100">
+                <i data-lucide="table" class="w-5 h-5 text-indigo-700"></i>
+            </div>
+            <div>
+                <p class="section-label text-indigo-500">Section D</p>
+                <h2 class="section-title">Parts of a Report</h2>
+            </div>
+        </div>
+
+        <p class="text-slate-600 text-sm mb-5 leading-relaxed max-w-3xl">Every formal report follows a standard structure. Each part serves a specific purpose and follows particular language conventions. Use this reference table to guide your report writing.</p>
+
+        <div class="table-scroll mb-6">
+            <table class="parts-table">
+                <thead>
+                    <tr>
+                        <th style="width:130px;">Part</th>
+                        <th style="width:160px;">Description</th>
+                        <th>Key Contents</th>
+                        <th style="width:160px;">Language Style</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <span class="part-badge" style="background:#dbeafe;color:#1e40af;">Title Page</span>
+                        </td>
+                        <td class="text-slate-600">Name of the report and authorship information</td>
+                        <td>
+                            <ul>
+                                <li>Report name in ALL CAPS (e.g., <em>FINAL REPORT</em>)</li>
+                                <li>Receiver's name, title, and organization</li>
+                                <li>Team name and members</li>
+                                <li>Date submitted &amp; author's association</li>
+                                <li>No page number on title page</li>
+                            </ul>
+                        </td>
+                        <td><span class="lang-tag">Factual</span></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="part-badge" style="background:#ede9fe;color:#6d28d9;">Table of Contents</span>
+                        </td>
+                        <td class="text-slate-600">What you find in the report</td>
+                        <td>
+                            <ul>
+                                <li>Shows beginning page number for each heading</li>
+                                <li>Connects headings to page numbers with dots</li>
+                                <li>Headings must be grammatically parallel</li>
+                                <li>Includes major sections and sub-headings</li>
+                                <li>No page number on TOC page</li>
+                            </ul>
+                        </td>
+                        <td><span class="lang-tag">Factual</span></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="part-badge" style="background:#fef3c7;color:#92400e;">Executive Summary</span>
+                        </td>
+                        <td class="text-slate-600">A summary of the entire report</td>
+                        <td>
+                            <ul>
+                                <li>No longer than one page</li>
+                                <li>Provides key recommendations and conclusions</li>
+                                <li>Not a summary of the document — highlights only</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <span class="lang-tag">Factual</span>
+                            <br><span class="lang-tag mt-1">Third person</span>
+                            <br><span class="lang-tag mt-1">Passive verbs</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="part-badge" style="background:#dcfce7;color:#166534;">Introduction</span>
+                        </td>
+                        <td class="text-slate-600">Background, problem, approach, definitions</td>
+                        <td>
+                            <ul>
+                                <li>Briefly describe the context</li>
+                                <li>Identify the subject matter</li>
+                                <li>Describe the issue or problem</li>
+                                <li>State the specific questions the report answers</li>
+                                <li>Outline the scope and preview structure</li>
+                                <li>Comment on limitations and assumptions</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <span class="lang-tag">Factual</span>
+                            <br><span class="lang-tag mt-1">Third person</span>
+                            <br><span class="lang-tag mt-1">Passive verbs</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="part-badge" style="background:#cffafe;color:#0e7490;">Methods</span>
+                        </td>
+                        <td class="text-slate-600">Procedures which led to the findings</td>
+                        <td>
+                            <ul>
+                                <li>Goal for each piece of research</li>
+                                <li>Data source used</li>
+                                <li>For surveys: number distributed, method, population sampling</li>
+                                <li>For observations: how, when, and where it occurred</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <span class="lang-tag">Factual</span>
+                            <br><span class="lang-tag mt-1">Third person</span>
+                            <br><span class="lang-tag mt-1">Passive verbs</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="part-badge" style="background:#fce7f3;color:#9d174d;">Findings</span>
+                        </td>
+                        <td class="text-slate-600">Results, investigation &amp; calculations</td>
+                        <td>
+                            <ul>
+                                <li>Supply proofs for conclusions</li>
+                                <li>Discuss, analyse, and interpret data</li>
+                                <li>Support findings with evidence</li>
+                                <li>Explain all graphs in writing</li>
+                                <li>Arrange in logical order matching methodology</li>
+                                <li>Present "just the facts" — no opinions</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <span class="lang-tag">Factual</span>
+                            <br><span class="lang-tag mt-1">Third person</span>
+                            <br><span class="lang-tag mt-1">Passive verbs</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="part-badge" style="background:#fee2e2;color:#991b1b;">Conclusion</span>
+                        </td>
+                        <td class="text-slate-600">Conclusion drawn from the findings</td>
+                        <td>
+                            <ul>
+                                <li>Interpret and summarize the findings</li>
+                                <li>Relate conclusions to the report problem</li>
+                                <li>Limit to data presented — no new material</li>
+                                <li>Number the conclusions in parallel form</li>
+                                <li>Be objective; avoid exaggeration</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <span class="lang-tag">Transition signals</span>
+                            <br><span class="text-xs text-slate-500 mt-1 block italic">"it seems that…" "the results indicate…" "it is probable that…"</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="part-badge" style="background:#d1fae5;color:#065f46;">Recommendation</span>
+                        </td>
+                        <td class="text-slate-600">Actions to be taken as a result</td>
+                        <td>
+                            <ul>
+                                <li>Make specific suggestions for actions</li>
+                                <li>Avoid conditional words like <em>maybe</em> and <em>perhaps</em></li>
+                                <li>Begin each suggestion with a verb</li>
+                                <li>Number the recommendations</li>
+                                <li>Arrange from most to least important</li>
+                            </ul>
+                        </td>
+                        <td><span class="lang-tag">Action verbs</span></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="part-badge" style="background:#f1f5f9;color:#475569;">Bibliography</span>
+                        </td>
+                        <td class="text-slate-600">References used in the report</td>
+                        <td>
+                            <ul>
+                                <li>Books, magazines, journals, reports</li>
+                                <li>Online sources and other references used</li>
+                                <li>Formatted according to the required citation style</li>
+                            </ul>
+                        </td>
+                        <td><span class="lang-tag">Citation format</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="takeaway">
+            <div class="takeaway-icon">
+                <i data-lucide="info" class="w-5 h-5"></i>
+            </div>
+            <div>
+                <p class="font-bold text-teal-900 mb-1">Key Takeaway</p>
+                <p class="text-sm text-teal-800 leading-relaxed">Each part of a report has a distinct role. Following the standard structure ensures your report is <strong>professional, easy to navigate,</strong> and <strong>credible</strong>. Always use factual, third-person, passive language in the body sections.</p>
+            </div>
+        </div>
+    </section>
+
+    <hr class="gold-divider">
+
+    <!-- ══ SECTION E: CANVA VISUAL AID ══ -->
+    <section id="section-e" class="mb-14 reveal delay-5">
+        <div class="section-header">
+            <div class="section-icon bg-teal-100">
+                <i data-lucide="presentation" class="w-5 h-5 text-teal-700"></i>
+            </div>
+            <div>
+                <p class="section-label text-teal-600">Section E · Interactive Visual Aid</p>
+                <h2 class="section-title">Lesson Presentation &amp; Infographic</h2>
+            </div>
+        </div>
+
+        <p class="text-slate-600 text-sm mb-5 leading-relaxed">Explore the lesson's visual summary below. This interactive Canva presentation covers all key concepts about business and technical reports in an easy-to-review format.</p>
+
+        <div class="canva-wrapper">
+            <div class="canva-header">
+                <div style="background:white;border-radius:8px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#0d7377"/><path d="M8 12h8M12 8v8" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+                </div>
+                <span class="text-white font-bold text-sm">Lesson 6 — Business &amp; Technical Reports Visual Aid</span>
+                <span class="canva-badge ml-auto">Canva · Interactive</span>
+            </div>
+            <div class="canva-container">
+                <iframe
+                    loading="lazy"
+                    src="https://www.canva.com/design/DAHHZdrfrHU/7iIPZVCkY9g_xdauuFq2sg/view?embed"
+                    allowfullscreen="allowfullscreen"
+                    allow="fullscreen"
+                    title="Lesson 6 - Writing Business and Technical Reports">
+                </iframe>
+            </div>
+            <div style="background:#f0fdfa;border-top:1px solid #a7f3d0;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="zoom-in" class="w-4 h-4 text-teal-500"></i>
+                    <span class="text-xs text-teal-700 font-semibold">Click inside the presentation to navigate slides</span>
+                </div>
+                <a href="https://www.canva.com/design/DAHHZdrfrHU/7iIPZVCkY9g_xdauuFq2sg/view" target="_blank" rel="noopener noreferrer"
+                   style="display:inline-flex;align-items:center;gap:6px;background:#0d7377;color:white;font-size:12px;font-weight:700;padding:7px 16px;border-radius:999px;text-decoration:none;transition:all 0.2s;"
+                   onmouseover="this.style.background='#0f5a5e'" onmouseout="this.style.background='#0d7377'">
+                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                    Open in Canva
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <hr class="gold-divider">
+
+    <!-- ══ SECTION F: YOUTUBE VIDEO EXAMPLES ══ -->
+    <section id="section-f" class="mb-14 reveal delay-6">
+        <div class="section-header">
+            <div class="section-icon" style="background:#fee2e2;">
+                <svg class="w-5 h-5" style="color:#dc2626;" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            </div>
+            <div>
+                <p class="section-label" style="color:#dc2626;">Section F · Video Examples</p>
+                <h2 class="section-title">Concrete Examples on YouTube</h2>
+            </div>
+        </div>
+
+        <p class="text-slate-600 text-sm mb-6 leading-relaxed max-w-3xl">Watch these curated videos to see the lesson's concepts in action. Each video matches a specific section of this lesson — from understanding what a report is, to writing a strong executive summary.</p>
+
+        <div class="grid md:grid-cols-2 gap-5">
+
+            <!-- Video 1: What is a Business Report -->
+            <div class="card overflow-hidden">
+                <div style="position:relative;padding-bottom:56.25%;background:#000;">
+                    <iframe
+                        src="https://www.youtube.com/embed/V8uF1EoIneE"
+                        title="How to Write a Business Report"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen
+                        loading="lazy"
+                        style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;">
+                    </iframe>
+                </div>
+                <div style="padding:16px;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                        <span style="background:#dbeafe;color:#1e40af;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:0.07em;">Section A</span>
+                        <span style="font-size:11px;color:#94a3b8;">What is a Report?</span>
+                    </div>
+                    <p class="font-bold text-sm" style="color:var(--text-main);margin-bottom:4px;">How to Write a Business Report</p>
+                    <p class="text-xs" style="color:var(--text-muted);line-height:1.5;">A clear overview of what business reports are, who they are for, and how to structure them — a great starting point for this lesson.</p>
+                </div>
+            </div>
+
+            <!-- Video 2: Formal vs Informal Report Structure -->
+            <div class="card overflow-hidden">
+                <div style="position:relative;padding-bottom:56.25%;background:#000;">
+                    <iframe
+                        src="https://www.youtube.com/embed/i4YM0fqw-gI"
+                        title="Business Report Structure"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen
+                        loading="lazy"
+                        style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;">
+                    </iframe>
+                </div>
+                <div style="padding:16px;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                        <span style="background:#fef3c7;color:#92400e;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:0.07em;">Section C</span>
+                        <span style="font-size:11px;color:#94a3b8;">Report Categories</span>
+                    </div>
+                    <p class="font-bold text-sm" style="color:var(--text-main);margin-bottom:4px;">Business Report: Structure (University of Melbourne)</p>
+                    <p class="text-xs" style="color:var(--text-muted);line-height:1.5;">Shows how to structure formal and informal business reports for different audiences — directly reinforces the two categories covered in Section C.</p>
+                </div>
+            </div>
+
+            <!-- Video 3: Short Business Reports -->
+            <div class="card overflow-hidden">
+                <div style="position:relative;padding-bottom:56.25%;background:#000;">
+                    <iframe
+                        src="https://www.youtube.com/embed/TW-1aan4nFs"
+                        title="Guidelines for Writing Short Business Reports"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen
+                        loading="lazy"
+                        style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;">
+                    </iframe>
+                </div>
+                <div style="padding:16px;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                        <span style="background:#d1fae5;color:#065f46;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:0.07em;">Section C</span>
+                        <span style="font-size:11px;color:#94a3b8;">Informal Reports</span>
+                    </div>
+                    <p class="font-bold text-sm" style="color:var(--text-main);margin-bottom:4px;">Guidelines for Writing Short Business Reports</p>
+                    <p class="text-xs" style="color:var(--text-muted);line-height:1.5;">Eight practical guidelines for writing any type of short (informal) report — perfect for understanding progress reports, sales activity reports, and memos.</p>
+                </div>
+            </div>
+
+            <!-- Video 4: Executive Summary -->
+            <div class="card overflow-hidden">
+                <div style="position:relative;padding-bottom:56.25%;background:#000;">
+                    <iframe
+                        src="https://www.youtube.com/embed/reGGh5V6cEM"
+                        title="Executive Summaries"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen
+                        loading="lazy"
+                        style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;">
+                    </iframe>
+                </div>
+                <div style="padding:16px;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                        <span style="background:#ede9fe;color:#6d28d9;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:0.07em;">Section D</span>
+                        <span style="font-size:11px;color:#94a3b8;">Parts of a Report</span>
+                    </div>
+                    <p class="font-bold text-sm" style="color:var(--text-main);margin-bottom:4px;">Executive Summaries (University of Melbourne)</p>
+                    <p class="text-xs" style="color:var(--text-muted);line-height:1.5;">Covers the aim, audience, and structure of executive summaries with a real example to analyse — directly supports the Executive Summary row in the Parts of a Report table.</p>
+                </div>
+            </div>
+
+            <!-- Video 5: Full Formal Report Walkthrough -->
+            <div class="card overflow-hidden md:col-span-2">
+                <div style="display:flex;flex-wrap:wrap;">
+                    <div style="position:relative;padding-bottom:28.125%;min-width:280px;flex:1;background:#000;">
+                        <iframe
+                            src="https://www.youtube.com/embed/Sq2SDdz1i8U"
+                            title="Writing a Powerful Business Report"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen
+                            loading="lazy"
+                            style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;">
+                        </iframe>
+                    </div>
+                    <div style="padding:20px;flex:1;min-width:220px;">
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                            <span style="background:#0d7377;color:white;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:0.07em;">Sections A–D</span>
+                            <span style="font-size:11px;color:#94a3b8;">Full Overview</span>
+                        </div>
+                        <p class="font-bold text-sm" style="color:var(--text-main);margin-bottom:6px;">Writing a Powerful Business Report — GCFGlobal</p>
+                        <p class="text-xs" style="color:var(--text-muted);line-height:1.6;">A short, highly accessible walkthrough of the entire business report writing process — from defining the purpose, choosing the right type, all the way through structuring the report and presenting findings. A great review video for the whole lesson.</p>
+                        <a href="https://www.youtube.com/watch?v=Sq2SDdz1i8U" target="_blank" rel="noopener noreferrer"
+                           style="display:inline-flex;align-items:center;gap:6px;margin-top:12px;background:#dc2626;color:white;font-size:11px;font-weight:700;padding:6px 14px;border-radius:999px;text-decoration:none;transition:opacity 0.2s;"
+                           onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                            <svg style="width:12px;height:12px;" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                            Watch on YouTube
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="takeaway" style="margin-top:24px;">
+            <div class="takeaway-icon">
+                <i data-lucide="youtube" class="w-5 h-5"></i>
+            </div>
+            <div>
+                <p class="font-bold text-teal-900 mb-1">How to Use These Videos</p>
+                <p class="text-sm text-teal-800 leading-relaxed">Watch each video alongside its matching section for deeper understanding. You can also revisit them when writing your own report — especially the executive summary and report structure videos.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ LESSON NAVIGATION + COMPLETE ══ -->
+    <div class="border-t-2 border-dashed border-slate-200 pt-10">
+        <div class="flex flex-wrap justify-between items-center gap-4">
+            <a href="lesson5.html" class="nav-btn">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Lesson 5
+            </a>
+
+            <button id="completeLessonBtn" onclick="markLesson6Complete()" class="complete-btn">
+                <i data-lucide="check-circle" class="w-5 h-5"></i>
+                <span>Mark Lesson as Complete</span>
+            </button>
+
+            <div class="flex items-center gap-2 text-slate-400 text-sm">
+                <i data-lucide="lock" class="w-4 h-4"></i>
+                <span>Lesson 7 unlocks after completion</span>
+            </div>
+        </div>
+
+        <p class="text-center text-xs text-slate-400 mt-5">
+            Completing this lesson saves your progress to Firestore and unlocks <strong>Lesson 7</strong>.
+        </p>
+    </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer style="background:var(--navy);color:white;padding:36px 0;margin-top:60px;border-top:3px solid var(--gold);">
+    <div class="container mx-auto px-4 text-center">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold-light);margin-bottom:6px;">Purposive Communication</div>
+        <p style="font-weight:700;font-size:16px;margin-bottom:4px;">Lesson 6: Writing Business and Technical Reports</p>
+        <p style="font-size:13px;opacity:0.55;">Asynchronous Class · Report Writing</p>
+    </div>
+</footer>
+
+<script>
+    lucide.createIcons();
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+            const target = document.querySelector(a.getAttribute('href'));
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+
+    // Intersection Observer for reveal animations
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.08 });
+    reveals.forEach(el => {
+        el.style.animationPlayState = 'paused';
+        observer.observe(el);
+    });
+</script>
+
+</body>
+</html>
