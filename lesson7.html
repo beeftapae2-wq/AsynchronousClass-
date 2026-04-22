@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 7: Resume Writing | Purposive Communication</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBUeClSBF_9QTKQMOVh7iXQTRGZugbAyi8",
+            authDomain: "asynchronousclass-61231.firebaseapp.com",
+            projectId: "asynchronousclass-61231",
+            storageBucket: "asynchronousclass-61231.firebasestorage.app",
+            messagingSenderId: "488059356162",
+            appId: "1:488059356162:web:c6a5b9553062ae210b531b",
+            measurementId: "G-57GNQTZWZP"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        const userName = localStorage.getItem('userName');
+        if (!isLoggedIn || !userName) {
+            window.location.href = 'login.html';
+        }
+
+        async function checkAccess() {
+            try {
+                const classSnap = await getDoc(doc(db, 'classConfig', 'lessonAccess'));
+                if (classSnap.exists() && !classSnap.data().lesson7?.unlocked) {
+                    alert('🔒 Lesson 7 is not yet unlocked. Please complete previous lessons first.');
+                    window.location.href = 'index.html';
+                    return;
+                }
+            } catch (err) {
+                console.error('Access check error:', err);
+            }
+        }
+
+        window.markLesson7Complete = async function() {
+            const btn = document.getElementById('completeLessonBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="flex items-center gap-2"><svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>Saving...</span>';
+
+            try {
+                const userRef = doc(db, 'users', userName, 'data', 'progress');
+                const userSnap = await getDoc(userRef);
+                let userData = userSnap.exists() ? userSnap.data() : {};
+
+                userData.lesson7 = { completed: true };
+                if (!userData.lesson8) userData.lesson8 = { completed: false };
+                await setDoc(userRef, userData, { merge: true });
+
+                const classRef = doc(db, 'classConfig', 'lessonAccess');
+                await setDoc(classRef, { lesson8: { unlocked: true } }, { merge: true });
+
+                let lessonAccess = JSON.parse(localStorage.getItem('lessonAccess')) || {};
+                if (!lessonAccess.lesson7) lessonAccess.lesson7 = {};
+                lessonAccess.lesson7.completed = true;
+                if (!lessonAccess.lesson8) lessonAccess.lesson8 = {};
+                lessonAccess.lesson8.unlocked = true;
+                localStorage.setItem('lessonAccess', JSON.stringify(lessonAccess));
+
+                alert('✅ Lesson 7 completed! Lesson 8 is now unlocked. Returning to dashboard...');
+                window.location.href = 'index.html';
+
+            } catch (err) {
+                console.error('Save error:', err);
+                btn.disabled = false;
+                btn.innerHTML = '<span class="flex items-center gap-2"><i data-lucide="check-circle" class="w-5 h-5"></i>Mark Lesson as Complete</span>';
+                lucide.createIcons();
+                alert('⚠️ Could not save progress. Please check your connection and try again.');
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', checkAccess);
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --forest: #1a3d2b;
+            --forest-mid: #255c3f;
+            --forest-light: #2e7d52;
+            --cream: #faf8f3;
+            --warm-white: #ffffff;
+            --sand: #f0ebe0;
+            --gold: #c8922a;
+            --gold-light: #e8b04a;
+            --text: #1c2b1e;
+            --text-muted: #5a6b5d;
+            --border: #dde6df;
+            --tag-green: #d1ead8;
+        }
+
+        body {
+            font-family: 'Source Sans 3', sans-serif;
+            background-color: var(--cream);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
+
+        /* NAV */
+        .top-nav {
+            background: var(--forest);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 3px solid var(--gold);
+        }
+
+        /* HERO */
+        .hero {
+            background: linear-gradient(160deg, var(--forest) 0%, var(--forest-mid) 60%, #1e4d35 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: 'RESUME';
+            position: absolute;
+            right: -40px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: 'Playfair Display', serif;
+            font-size: 160px;
+            font-weight: 900;
+            color: rgba(255,255,255,0.04);
+            pointer-events: none;
+            white-space: nowrap;
+            line-height: 1;
+        }
+
+        /* SECTION HEADERS */
+        .sec-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+        }
+        .sec-icon {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .sec-eyebrow {
+            font-family: 'Source Sans 3', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+        .sec-title {
+            font-size: 20px;
+            font-weight: 800;
+            line-height: 1.1;
+            color: var(--text);
+        }
+
+        /* CARDS */
+        .card {
+            background: var(--warm-white);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+        }
+        .card-hover {
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .card-hover:hover {
+            box-shadow: 0 8px 24px rgba(26,61,43,0.1);
+            transform: translateY(-2px);
+        }
+
+        /* RESUME TYPE CARDS */
+        .type-card {
+            background: var(--warm-white);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 22px;
+            border-top: 4px solid;
+            transition: all 0.2s;
+        }
+        .type-card:hover {
+            box-shadow: 0 8px 24px rgba(26,61,43,0.1);
+            transform: translateY(-2px);
+        }
+        .type-num {
+            width: 36px; height: 36px;
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 15px;
+            font-family: 'Playfair Display', serif;
+            flex-shrink: 0;
+        }
+
+        /* FEATURE CARDS */
+        .feature-card {
+            background: var(--warm-white);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+        .feature-card:hover {
+            box-shadow: 0 8px 24px rgba(26,61,43,0.1);
+        }
+        .feature-header {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .feature-num {
+            width: 34px; height: 34px;
+            background: var(--forest);
+            color: white;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .feature-body {
+            padding: 16px 20px;
+        }
+
+        /* COMPARE TABLE */
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .compare-table th {
+            background: var(--forest);
+            color: white;
+            padding: 12px 16px;
+            font-family: 'Source Sans 3', sans-serif;
+            font-weight: 700;
+            font-size: 13px;
+            text-align: left;
+        }
+        .compare-table td {
+            padding: 12px 16px;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+            line-height: 1.5;
+        }
+        .compare-table tr:last-child td { border-bottom: none; }
+        .compare-table tr:nth-child(even) td { background: #f8fbf8; }
+
+        /* VIDEO */
+        .video-wrap {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #0a0a0a;
+        }
+        .video-wrap iframe {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border: none;
+        }
+        .yt-badge {
+            background: #cc0000;
+            color: white;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        /* CANVA */
+        .canva-embed {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            background: #f0f0f0;
+        }
+        .canva-embed iframe {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border: none;
+        }
+
+        /* COMPLETE BTN */
+        .complete-btn {
+            background: linear-gradient(135deg, var(--forest-light), var(--forest));
+            color: white;
+            border: none;
+            padding: 13px 30px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 16px rgba(26,61,43,0.3);
+        }
+        .complete-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(26,61,43,0.4);
+        }
+        .complete-btn:disabled { opacity: 0.65; cursor: not-allowed; }
+
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--forest);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover { background: var(--forest-mid); transform: translateY(-1px); }
+
+        /* PILL TAG */
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        /* PROGRESS BAR */
+        .prog-wrap { background: rgba(255,255,255,0.15); border-radius: 999px; height: 5px; width: 110px; }
+        .prog-fill { background: var(--gold-light); height: 100%; border-radius: 999px; width: 87.5%; }
+
+        /* ANIMATIONS */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .reveal { animation: fadeUp 0.5s ease forwards; opacity: 0; }
+        .d1 { animation-delay: 0.05s; } .d2 { animation-delay: 0.12s; }
+        .d3 { animation-delay: 0.20s; } .d4 { animation-delay: 0.28s; }
+        .d5 { animation-delay: 0.36s; } .d6 { animation-delay: 0.44s; }
+
+        hr.divider {
+            border: none;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            opacity: 0.4;
+            margin: 44px 0;
+        }
+
+        /* CALLOUT */
+        .callout {
+            display: flex;
+            gap: 14px;
+            padding: 18px 20px;
+            border-radius: 12px;
+            border: 1px solid;
+        }
+        .callout-icon { flex-shrink: 0; margin-top: 1px; }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="top-nav text-white">
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center h-16">
+            <a href="index.html" class="flex items-center gap-2 font-bold hover:opacity-75 transition text-sm">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                Back to Dashboard
+            </a>
+            <div class="flex items-center gap-3">
+                <div class="prog-wrap"><div class="prog-fill"></div></div>
+                <span class="text-xs font-semibold opacity-60">Lesson 7 of 8</span>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero text-white py-14">
+    <div class="container mx-auto px-4 text-center max-w-2xl relative z-10">
+        <div class="inline-block px-3 py-1 rounded mb-4 text-xs font-bold tracking-widest uppercase" style="background:rgba(200,146,42,0.25);color:#e8b04a;border:1px solid rgba(200,146,42,0.4);">Lesson 7</div>
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4" style="background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);">
+            <i data-lucide="file-text" class="w-9 h-9 text-yellow-300"></i>
+        </div>
+        <h1 class="text-4xl md:text-5xl font-black mb-3 leading-tight">Resume Writing</h1>
+        <p class="opacity-70 max-w-md mx-auto text-base leading-relaxed">Learn how to craft a persuasive, professional resume that opens doors to employment opportunities.</p>
+
+        <!-- Quick nav -->
+        <div class="flex flex-wrap justify-center gap-2 mt-6 text-xs">
+            <a href="#sec-what"   class="pill" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.85);">📄 What is a Resume</a>
+            <a href="#sec-types"  class="pill" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.85);">📋 Types</a>
+            <a href="#sec-org"    class="pill" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.85);">🗂 Organization</a>
+            <a href="#sec-feat"   class="pill" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.85);">⭐ Features</a>
+            <a href="#sec-videos" class="pill" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.85);">🎬 Videos</a>
+            <a href="#sec-canva"  class="pill" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.85);">📊 Visual Aid</a>
+        </div>
+    </div>
+</header>
+
+<!-- MAIN -->
+<main class="container mx-auto px-4 py-12 max-w-4xl">
+
+    <!-- ── SECTION A: What is a Resume ── -->
+    <section id="sec-what" class="mb-12 reveal d1">
+        <div class="sec-header">
+            <div class="sec-icon" style="background:#e8f5ee;">
+                <i data-lucide="file-text" class="w-5 h-5" style="color:var(--forest-light);"></i>
+            </div>
+            <div>
+                <p class="sec-eyebrow" style="color:var(--forest-light);">Section A</p>
+                <h2 class="sec-title">What is a Resume?</h2>
+            </div>
+        </div>
+
+        <!-- Definition box -->
+        <div class="rounded-2xl p-7 text-white mb-5 relative overflow-hidden" style="background:linear-gradient(135deg,var(--forest) 0%,var(--forest-mid) 100%);">
+            <div style="position:absolute;right:-20px;bottom:-30px;font-family:'Playfair Display',serif;font-size:100px;font-weight:900;opacity:0.06;pointer-events:none;line-height:1;">R</div>
+            <div class="flex items-start gap-4">
+                <div class="p-2 rounded-xl flex-shrink-0" style="background:rgba(200,146,42,0.25);">
+                    <i data-lucide="briefcase" class="w-6 h-6 text-yellow-300"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-2 text-yellow-200">Definition</h3>
+                    <p class="opacity-90 leading-relaxed text-sm">A <strong class="text-yellow-300">resume</strong> is a persuasive summary of your qualifications for employment.</p>
+                    <p class="opacity-70 mt-2 text-sm leading-relaxed">If you are in the job market, having a resume makes you look well organized and prepared to your prospective employers.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key idea callout -->
+        <div class="callout" style="background:#f0f8f3;border-color:#b6d9c2;">
+            <div class="callout-icon">
+                <i data-lucide="lightbulb" class="w-5 h-5" style="color:var(--forest-light);"></i>
+            </div>
+            <div>
+                <p class="font-bold text-sm mb-0.5" style="color:var(--forest);">Why it matters</p>
+                <p class="text-sm leading-relaxed" style="color:var(--text-muted);">A resume is often your <em>first impression</em> with an employer — before any interview happens. A well-crafted resume gets you in the door; a poorly made one keeps it closed.</p>
+            </div>
+        </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ── SECTION B: Types of Resume ── -->
+    <section id="sec-types" class="mb-12 reveal d2">
+        <div class="sec-header">
+            <div class="sec-icon" style="background:#fef3e2;">
+                <i data-lucide="layers" class="w-5 h-5" style="color:var(--gold);"></i>
+            </div>
+            <div>
+                <p class="sec-eyebrow" style="color:var(--gold);">Section B</p>
+                <h2 class="sec-title">Types of Resume</h2>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4">
+            <!-- Print -->
+            <div class="type-card" style="border-top-color:var(--forest-light);">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="type-num" style="background:#e8f5ee;color:var(--forest);">1</div>
+                    <div>
+                        <span class="text-xs font-bold tracking-wider uppercase" style="color:var(--forest-light);">Type 1</span>
+                        <h3 class="font-bold text-base" style="color:var(--text);">Print Resume</h3>
+                    </div>
+                </div>
+                <p class="text-sm leading-relaxed" style="color:var(--text-muted);">Printed on paper for prospective employers to scrutinize. Designed to emphasize key information using <strong>bold</strong> or <em>italic</em> typeface.</p>
+                <div class="mt-3 flex flex-wrap gap-2">
+                    <span class="pill" style="background:#e8f5ee;color:var(--forest);">📄 Paper-based</span>
+                    <span class="pill" style="background:#e8f5ee;color:var(--forest);">Bold &amp; Italic OK</span>
+                </div>
+            </div>
+
+            <!-- Scannable -->
+            <div class="type-card" style="border-top-color:var(--gold);">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="type-num" style="background:#fef3e2;color:var(--gold);">2</div>
+                    <div>
+                        <span class="text-xs font-bold tracking-wider uppercase" style="color:var(--gold);">Type 2</span>
+                        <h3 class="font-bold text-base" style="color:var(--text);">Scannable Resume</h3>
+                    </div>
+                </div>
+                <p class="text-sm leading-relaxed" style="color:var(--text-muted);">Designed to be read by computers (ATS systems); formatted using a <strong>single typeface</strong> — no italics or bold to ensure clean machine parsing.</p>
+                <div class="mt-3 flex flex-wrap gap-2">
+                    <span class="pill" style="background:#fef3e2;color:var(--gold);">💻 ATS-friendly</span>
+                    <span class="pill" style="background:#fef3e2;color:var(--gold);">Plain formatting</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick compare table -->
+        <div class="mt-4 card overflow-hidden">
+            <div class="px-4 py-3 border-b border-gray-100" style="background:#f8fbf8;">
+                <p class="text-xs font-bold tracking-wider uppercase" style="color:var(--text-muted);">Quick Comparison</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="compare-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Print Resume</th>
+                            <th>Scannable Resume</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="font-semibold text-xs uppercase tracking-wider" style="color:var(--text-muted);white-space:nowrap;">Read by</td>
+                            <td>Human eyes</td>
+                            <td>Computer / ATS software</td>
+                        </tr>
+                        <tr>
+                            <td class="font-semibold text-xs uppercase tracking-wider" style="color:var(--text-muted);">Formatting</td>
+                            <td>Bold, italic, varied typeface</td>
+                            <td>Single plain typeface only</td>
+                        </tr>
+                        <tr>
+                            <td class="font-semibold text-xs uppercase tracking-wider" style="color:var(--text-muted);">Keywords</td>
+                            <td>Action verbs preferred</td>
+                            <td>Nouns / keyword-rich</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ── SECTION C: Organization (3 formats) ── -->
+    <section id="sec-org" class="mb-12 reveal d3">
+        <div class="sec-header">
+            <div class="sec-icon" style="background:#eef2ff;">
+                <i data-lucide="layout-list" class="w-5 h-5 text-indigo-600"></i>
+            </div>
+            <div>
+                <p class="sec-eyebrow text-indigo-500">Section C · Feature 1</p>
+                <h2 class="sec-title">Organization: How to Structure Your Resume</h2>
+            </div>
+        </div>
+
+        <p class="text-sm mb-5" style="color:var(--text-muted);">There are different ways to organize your resume depending on your goals, experiences, and qualifications.</p>
+
+        <div class="space-y-4">
+            <!-- Chronological -->
+            <div class="feature-card">
+                <div class="feature-header">
+                    <div class="feature-num">A</div>
+                    <div>
+                        <h4 class="font-bold text-sm">Chronological Resume</h4>
+                        <p class="text-xs" style="color:var(--text-muted);">Most common format · Best for steady work history</p>
+                    </div>
+                    <span class="pill ml-auto" style="background:#e8f5ee;color:var(--forest);">Most Common</span>
+                </div>
+                <div class="feature-body">
+                    <p class="text-sm leading-relaxed" style="color:var(--text-muted);">Lists all academic and work experience <strong>from the most recent to the oldest</strong>. Ideal if you have a consistent work history in one field.</p>
+                    <div class="mt-3 text-xs p-3 rounded-lg" style="background:#f8fbf8;color:var(--text-muted);border:1px solid var(--border);">
+                        📌 <strong>Example order:</strong> Current job → Previous job → Earlier job → Education (latest first)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Functional -->
+            <div class="feature-card">
+                <div class="feature-header">
+                    <div class="feature-num">B</div>
+                    <div>
+                        <h4 class="font-bold text-sm">Functional Resume</h4>
+                        <p class="text-xs" style="color:var(--text-muted);">Skills-focused · Good for career changers</p>
+                    </div>
+                    <span class="pill ml-auto" style="background:#fef3e2;color:var(--gold);">Skills-Based</span>
+                </div>
+                <div class="feature-body">
+                    <p class="text-sm leading-relaxed" style="color:var(--text-muted);">Organized around <strong>various kinds of experience</strong>. Use this if you want to demonstrate a wide range of skills across multiple areas, or if you want to downplay specific dates.</p>
+                    <div class="mt-3 text-xs p-3 rounded-lg" style="background:#fffbf0;color:var(--text-muted);border:1px solid #fde9b0;">
+                        📌 <strong>Best for:</strong> Career changers, returning workers, or those with diverse experience across fields
+                    </div>
+                </div>
+            </div>
+
+            <!-- Targeted -->
+            <div class="feature-card">
+                <div class="feature-header">
+                    <div class="feature-num">C</div>
+                    <div>
+                        <h4 class="font-bold text-sm">Targeted Resume</h4>
+                        <p class="text-xs" style="color:var(--text-muted);">Goal-specific · Tailored to one job posting</p>
+                    </div>
+                    <span class="pill ml-auto" style="background:#eef2ff;color:#4338ca;">Focused</span>
+                </div>
+                <div class="feature-body">
+                    <p class="text-sm leading-relaxed" style="color:var(--text-muted);">Announces a <strong>specific goal at the top</strong>, just beneath your name. Offers only the experience and skills relevant to that particular position.</p>
+                    <div class="mt-3 text-xs p-3 rounded-lg" style="background:#f5f5ff;color:var(--text-muted);border:1px solid #c7d2fe;">
+                        📌 <strong>Best for:</strong> Applying to a specific job posting where you want to match requirements exactly
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ── SECTION D: Features ── -->
+    <section id="sec-feat" class="mb-12 reveal d4">
+        <div class="sec-header">
+            <div class="sec-icon" style="background:#fff1f2;">
+                <i data-lucide="star" class="w-5 h-5 text-rose-500"></i>
+            </div>
+            <div>
+                <p class="sec-eyebrow text-rose-500">Section D</p>
+                <h2 class="sec-title">Features of a Good Resume</h2>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4">
+
+            <!-- Succinctness -->
+            <div class="feature-card">
+                <div class="feature-header">
+                    <div class="feature-num">2</div>
+                    <div>
+                        <h4 class="font-bold text-sm">Succinctness</h4>
+                        <p class="text-xs" style="color:var(--text-muted);">Concise and parallel entries</p>
+                    </div>
+                </div>
+                <div class="feature-body space-y-2">
+                    <p class="text-sm leading-relaxed" style="color:var(--text-muted);">A resume must be <strong>concise</strong>. Entries may not be written in full sentences but should be parallel in structure.</p>
+                    <div class="rounded-lg p-3 text-xs" style="background:#e8f5ee;border:1px solid #b6d9c2;">
+                        <p class="font-bold mb-1" style="color:var(--forest);">📄 Print Resume</p>
+                        <p style="color:var(--text-muted);">Use <strong>action verbs</strong>: <em>organized, designed, managed</em> — to emphasize what you did.</p>
+                    </div>
+                    <div class="rounded-lg p-3 text-xs" style="background:#fef3e2;border:1px solid #fde9b0;">
+                        <p class="font-bold mb-1" style="color:var(--gold);">💻 Scannable Resume</p>
+                        <p style="color:var(--text-muted);">Use <strong>nouns as keywords</strong>: <em>organizer, designer, manager</em> — for ATS software to detect.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comprehensiveness -->
+            <div class="feature-card">
+                <div class="feature-header">
+                    <div class="feature-num">3</div>
+                    <div>
+                        <h4 class="font-bold text-sm">Comprehensiveness</h4>
+                        <p class="text-xs" style="color:var(--text-muted);">Present all important details</p>
+                    </div>
+                </div>
+                <div class="feature-body">
+                    <p class="text-sm leading-relaxed" style="color:var(--text-muted);">A resume must present <strong>all important details</strong> that can gain the attention of the prospective employer.</p>
+                    <div class="mt-3 rounded-lg p-3 text-xs" style="background:#f8fbf8;border:1px solid var(--border);">
+                        💡 You may use the exact words from the job advertisement — provided they genuinely reflect your qualifications and experience.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Design (full width) -->
+            <div class="feature-card md:col-span-2">
+                <div class="feature-header">
+                    <div class="feature-num">4</div>
+                    <div>
+                        <h4 class="font-bold text-sm">Design</h4>
+                        <p class="text-xs" style="color:var(--text-muted);">Reader-friendly and professionally packaged</p>
+                    </div>
+                </div>
+                <div class="feature-body">
+                    <p class="text-sm leading-relaxed mb-4" style="color:var(--text-muted);">The resume should be <strong>reader-friendly</strong> and professionally packaged. Design differs based on resume type:</p>
+                    <div class="grid md:grid-cols-2 gap-3">
+                        <div class="rounded-lg p-4 text-sm" style="background:#e8f5ee;border:1px solid #b6d9c2;">
+                            <p class="font-bold mb-2" style="color:var(--forest);">📄 Print Resume Design</p>
+                            <ul class="space-y-1.5 text-xs" style="color:var(--text-muted);">
+                                <li>✔ Appropriate spacing</li>
+                                <li>✔ Clear section headings</li>
+                                <li>✔ Uniform typeface per heading</li>
+                                <li>✔ Bold/italic for emphasis</li>
+                            </ul>
+                        </div>
+                        <div class="rounded-lg p-4 text-sm" style="background:#fef3e2;border:1px solid #fde9b0;">
+                            <p class="font-bold mb-2" style="color:var(--gold);">💻 Scannable Resume Design</p>
+                            <ul class="space-y-1.5 text-xs" style="color:var(--text-muted);">
+                                <li>✔ One standard typeface only</li>
+                                <li>✔ No bold or italic formatting</li>
+                                <li>✔ Simple, clean structure</li>
+                                <li>✔ Keyword-optimized content</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ── SECTION E: YouTube Videos ── -->
+    <section id="sec-videos" class="mb-12 reveal d5">
+        <div class="sec-header">
+            <div class="sec-icon" style="background:#fff1f0;">
+                <i data-lucide="youtube" class="w-5 h-5 text-red-600"></i>
+            </div>
+            <div>
+                <p class="sec-eyebrow text-red-500">Section E · Supplementary Videos</p>
+                <h2 class="sec-title">Watch: Resume Writing in Action</h2>
+            </div>
+        </div>
+
+        <p class="text-sm mb-5" style="color:var(--text-muted);">These videos give you concrete, real-world examples of how to write and format a resume. Watch them to see the lesson concepts applied step by step.</p>
+
+        <div class="grid md:grid-cols-2 gap-5 mb-5">
+
+            <!-- Video 1 -->
+            <div class="card overflow-hidden card-hover">
+                <div class="video-wrap">
+                    <iframe src="https://www.youtube.com/embed/Tt08KmFfIYQ"
+                        title="How to Write a Resume - Step by Step"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        allowfullscreen loading="lazy"></iframe>
+                </div>
+                <div class="flex items-start gap-3 p-4 border-t border-gray-100" style="background:#fafafa;">
+                    <span class="yt-badge mt-0.5">YouTube</span>
+                    <div>
+                        <p class="font-bold text-sm leading-snug">How to Write a Resume — Step by Step Guide</p>
+                        <p class="text-xs mt-0.5" style="color:var(--text-muted);">Covers resume structure, sections, and formatting — great for beginners</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Video 2 -->
+            <div class="card overflow-hidden card-hover">
+                <div class="video-wrap">
+                    <iframe src="https://www.youtube.com/embed/y8YH0po8bpQ"
+                        title="Resume Tips That Will Get You Hired"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        allowfullscreen loading="lazy"></iframe>
+                </div>
+                <div class="flex items-start gap-3 p-4 border-t border-gray-100" style="background:#fafafa;">
+                    <span class="yt-badge mt-0.5">YouTube</span>
+                    <div>
+                        <p class="font-bold text-sm leading-snug">Resume Tips That Will Get You Hired</p>
+                        <p class="text-xs mt-0.5" style="color:var(--text-muted);">Practical do's and don'ts — shows what employers actually look for</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Video 3 – full width: ATS/Scannable -->
+        <div class="card overflow-hidden card-hover">
+            <div class="video-wrap">
+                <iframe src="https://www.youtube.com/embed/J-8AEBInNy8"
+                    title="How to Write an ATS Resume"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    allowfullscreen loading="lazy"></iframe>
+            </div>
+            <div class="flex items-start gap-3 p-4 border-t border-gray-100" style="background:#fafafa;">
+                <span class="yt-badge mt-0.5">YouTube</span>
+                <div>
+                    <p class="font-bold text-sm leading-snug">How to Write an ATS Resume (Scannable Resume)</p>
+                    <p class="text-xs mt-0.5" style="color:var(--text-muted);">Specifically covers scannable resumes — directly ties to Lesson 7's Print vs Scannable comparison</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="callout mt-4" style="background:#f0f8f3;border-color:#b6d9c2;">
+            <div class="callout-icon">
+                <i data-lucide="lightbulb" class="w-5 h-5" style="color:var(--forest-light);"></i>
+            </div>
+            <div>
+                <p class="font-bold text-sm mb-0.5" style="color:var(--forest);">Active Watching Tip</p>
+                <p class="text-xs leading-relaxed" style="color:var(--text-muted);">As you watch, take note of which resume type (Print or Scannable) each video focuses on, and identify which feature — Organization, Succinctness, Comprehensiveness, or Design — is being demonstrated.</p>
+            </div>
+        </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ── SECTION F: Canva Visual Aid ── -->
+    <section id="sec-canva" class="mb-12 reveal d6">
+        <div class="sec-header">
+            <div class="sec-icon" style="background:#f3f0ff;">
+                <i data-lucide="presentation" class="w-5 h-5 text-violet-600"></i>
+            </div>
+            <div>
+                <p class="sec-eyebrow text-violet-500">Section F · Visual Aid</p>
+                <h2 class="sec-title">Lesson Presentation</h2>
+            </div>
+        </div>
+
+        <p class="text-sm mb-4" style="color:var(--text-muted);">Review the visual summary of this lesson below. Use it as a study reference for the key concepts covered.</p>
+
+        <div class="card overflow-hidden">
+            <!-- Canva header -->
+            <div class="flex items-center gap-3 px-5 py-3 border-b border-gray-100" style="background:linear-gradient(90deg,#5b21b6,#4338ca);">
+                <div class="w-6 h-6 bg-white rounded-md flex items-center justify-center flex-shrink-0">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#5b21b6"/><path d="M8 12h8M12 8v8" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg>
+                </div>
+                <span class="text-white font-bold text-sm">Lesson 7 — Resume Writing Visual Aid</span>
+                <span class="ml-auto text-xs font-bold px-2.5 py-1 rounded-full" style="background:rgba(255,255,255,0.18);color:rgba(255,255,255,0.9);">Canva · Interactive</span>
+            </div>
+            <!-- Canva embed -->
+            <div class="canva-embed" id="canvaWrapper">
+                <iframe
+                    id="canvaFrame"
+                    loading="lazy"
+                    src="https://www.canva.com/design/DAHHZ3WJIDQ/ueNM1EBwjyVb4-BjNhaGbw/view?embed"
+                    allowfullscreen="allowfullscreen"
+                    allow="fullscreen"
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;">
+                </iframe>
+                <!-- Fallback shown if iframe fails to load -->
+                <div id="canvaFallback" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:#f3f0ff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#5b21b6" opacity="0.15"/><path d="M12 8v4m0 4h.01" stroke="#5b21b6" stroke-width="2" stroke-linecap="round"/></svg>
+                    <p style="font-weight:700;color:#5b21b6;font-size:15px;">Canva presentation could not be embedded.</p>
+                    <p style="font-size:13px;color:#6b7280;max-width:340px;">This usually happens because the Canva share link needs to be updated. Please replace the embed URL with the correct one from your Canva presentation's Share → Embed settings.</p>
+                    <a href="https://www.canva.com/design/DAHHZ3WJIDQ/ueNM1EBwjyVb4-BjNhaGbw/view" target="_blank" rel="noopener noreferrer"
+                       style="background:#5b21b6;color:white;padding:10px 24px;border-radius:999px;font-weight:700;font-size:13px;text-decoration:none;margin-top:4px;">
+                        Open in Canva ↗
+                    </a>
+                </div>
+            </div>
+            <script>
+                (function() {
+                    var frame = document.getElementById('canvaFrame');
+                    var fallback = document.getElementById('canvaFallback');
+                    if (frame && fallback) {
+                        frame.addEventListener('error', function() {
+                            frame.style.display = 'none';
+                            fallback.style.display = 'flex';
+                        });
+                        // Also show fallback if iframe src returns an error page after 8s
+                        setTimeout(function() {
+                            try {
+                                if (frame.contentDocument && frame.contentDocument.title === '') {
+                                    frame.style.display = 'none';
+                                    fallback.style.display = 'flex';
+                                }
+                            } catch(e) { /* cross-origin, likely loaded fine */ }
+                        }, 8000);
+                    }
+                })();
+            </script>
+            <!-- Footer -->
+            <div class="flex items-center justify-between gap-3 px-5 py-3 border-t border-gray-100 flex-wrap" style="background:#faf8ff;">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="mouse-pointer-2" class="w-4 h-4 text-violet-500"></i>
+                    <span class="text-xs font-semibold text-violet-600">Click slides to navigate</span>
+                </div>
+                <a href="https://www.canva.com/design/DAHHZ3WJIDQ/ueNM1EBwjyVb4-BjNhaGbw/view" target="_blank" rel="noopener noreferrer"
+                   class="inline-flex items-center gap-2 text-white text-xs font-bold px-4 py-2 rounded-full transition"
+                   style="background:#5b21b6;"
+                   onmouseover="this.style.background='#4c1d95'" onmouseout="this.style.background='#5b21b6'">
+                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                    Open in Canva
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── NAVIGATION + COMPLETE ── -->
+    <div class="border-t-2 border-dashed pt-8 mt-4" style="border-color:var(--border);">
+        <div class="flex flex-wrap justify-between items-center gap-4">
+            <a href="lesson6.html" class="nav-btn">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Lesson 6
+            </a>
+
+            <button id="completeLessonBtn" onclick="markLesson7Complete()" class="complete-btn">
+                <i data-lucide="check-circle" class="w-5 h-5"></i>
+                <span>Mark Lesson as Complete</span>
+            </button>
+
+            <div class="flex items-center gap-2 text-sm" style="color:var(--text-muted);">
+                <i data-lucide="lock" class="w-4 h-4"></i>
+                <span>Lesson 8 unlocks after completion</span>
+            </div>
+        </div>
+        <p class="text-center text-xs mt-5" style="color:var(--text-muted);">Completing this lesson saves your progress and unlocks <strong>Lesson 8</strong>.</p>
+    </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer style="background:var(--forest);color:white;padding:32px 0;margin-top:56px;border-top:3px solid var(--gold);">
+    <div class="container mx-auto px-4 text-center">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold-light);margin-bottom:6px;">Purposive Communication</div>
+        <p style="font-weight:700;font-size:16px;font-family:'Playfair Display',serif;margin-bottom:4px;">Lesson 7: Resume Writing</p>
+        <p style="font-size:12px;opacity:0.5;">Asynchronous Class</p>
+    </div>
+</footer>
+
+<script>
+    lucide.createIcons();
+
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+            const target = document.querySelector(a.getAttribute('href'));
+            if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+        });
+    });
+
+    // Scroll-triggered reveals
+    const reveals = document.querySelectorAll('.reveal');
+    const obs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+                obs.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.08 });
+    reveals.forEach(el => { el.style.animationPlayState = 'paused'; obs.observe(el); });
+</script>
+
+</body>
+</html>
