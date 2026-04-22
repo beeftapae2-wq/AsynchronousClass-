@@ -832,19 +832,21 @@
             <!-- Canva embed -->
             <div class="canva-embed" id="canvaWrapper">
                 <iframe
-                    id="canvaFrame"
                     loading="lazy"
                     src="https://www.canva.com/design/DAHHZ3WJIDQ/JwlZrxy-BiuJyzjgmd630g/view?embed"
                     allowfullscreen="allowfullscreen"
                     allow="fullscreen"
-                    referrerpolicy="strict-origin-when-cross-origin"
-                    style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;">
+                    title="Lesson 7 - Resume Writing">
                 </iframe>
-                <!-- Fallback shown if iframe fails to load -->
-                <div id="canvaFallback" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:#f3f0ff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#5b21b6" opacity="0.15"/><path d="M12 8v4m0 4h.01" stroke="#5b21b6" stroke-width="2" stroke-linecap="round"/></svg>
-                    <a href="https://www.canva.com/design/DAHHZ3WJIDQ/JwlZrxy-BiuJyzjgmd630g/view" target="_blank" rel="noopener noreferrer"
-                       style="background:#5b21b6;color:white;padding:10px 24px;border-radius:999px;font-weight:700;font-size:13px;text-decoration:none;margin-top:4px;">
+            </div>
+            <div style="background:#f0fdfa;border-top:1px solid #a7f3d0;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="zoom-in" class="w-4 h-4 text-teal-500"></i>
+                    <span class="text-xs text-teal-700 font-semibold">Click inside the presentation to navigate slides</span>
+                </div>
+                <a href="https://www.canva.com/design/DAHHZ3WJIDQ/JwlZrxy-BiuJyzjgmd630g/view" target="_blank" rel="noopener noreferrer"
+                   style="display:inline-flex;align-items:center;gap:6px;background:#0d7377;color:white;font-size:12px;font-weight:700;padding:7px 16px;border-radius:999px;text-decoration:none;transition:all 0.2s;"
+                   onmouseover="this.style.background='#0f5a5e'" onmouseout="this.style.background='#0d7377'">
                         Open in Canva ↗
                     </a>
                 </div>
