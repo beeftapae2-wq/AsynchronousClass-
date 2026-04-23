@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 8: Application Letter | Purposive Communication</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBUeClSBF_9QTKQMOVh7iXQTRGZugbAyi8",
+            authDomain: "asynchronousclass-61231.firebaseapp.com",
+            projectId: "asynchronousclass-61231",
+            storageBucket: "asynchronousclass-61231.firebasestorage.app",
+            messagingSenderId: "488059356162",
+            appId: "1:488059356162:web:c6a5b9553062ae210b531b",
+            measurementId: "G-57GNQTZWZP"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        const userName = localStorage.getItem('userName');
+        if (!isLoggedIn || !userName) {
+            window.location.href = 'login.html';
+        }
+
+        async function checkAccess() {
+            try {
+                const classSnap = await getDoc(doc(db, 'classConfig', 'lessonAccess'));
+                if (classSnap.exists() && !classSnap.data().lesson8?.unlocked) {
+                    alert('🔒 Lesson 8 is not yet unlocked. Please complete previous lessons first.');
+                    window.location.href = 'index.html';
+                    return;
+                }
+            } catch (err) {
+                console.error('Access check error:', err);
+            }
+        }
+
+        window.markLesson8Complete = async function() {
+            const btn = document.getElementById('completeLessonBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="flex items-center gap-2"><svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>Saving...</span>';
+
+            try {
+                const userRef = doc(db, 'users', userName, 'data', 'progress');
+                const userSnap = await getDoc(userRef);
+                let userData = userSnap.exists() ? userSnap.data() : {};
+
+                userData.lesson8 = { completed: true };
+                if (!userData.lesson9) userData.lesson9 = { completed: false };
+                await setDoc(userRef, userData, { merge: true });
+
+                const classRef = doc(db, 'classConfig', 'lessonAccess');
+                await setDoc(classRef, { lesson9: { unlocked: true } }, { merge: true });
+
+                let lessonAccess = JSON.parse(localStorage.getItem('lessonAccess')) || {};
+                if (!lessonAccess.lesson8) lessonAccess.lesson8 = {};
+                lessonAccess.lesson8.completed = true;
+                if (!lessonAccess.lesson9) lessonAccess.lesson9 = {};
+                lessonAccess.lesson9.unlocked = true;
+                localStorage.setItem('lessonAccess', JSON.stringify(lessonAccess));
+
+                alert('✅ Lesson 8 completed! Lesson 9 is now unlocked. Returning to dashboard...');
+                window.location.href = 'index.html';
+
+            } catch (err) {
+                console.error('Save error:', err);
+                btn.disabled = false;
+                btn.innerHTML = '<span class="flex items-center gap-2"><i data-lucide="check-circle" class="w-5 h-5"></i>Mark Lesson as Complete</span>';
+                lucide.createIcons();
+                alert('⚠️ Could not save progress. Please check your connection and try again.');
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', checkAccess);
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --forest: #1a3d2b;
+            --forest-mid: #255c3f;
+            --forest-light: #2e7d52;
+            --cream: #faf8f3;
+            --warm-white: #ffffff;
+            --sand: #f0ebe0;
+            --gold: #c8922a;
+            --gold-light: #e8b04a;
+            --text: #1c2b1e;
+            --text-muted: #5a6b5d;
+            --border: #dde6df;
+            --tag-green: #d1ead8;
+        }
+
+        body {
+            font-family: 'Source Sans 3', sans-serif;
+            background-color: var(--cream);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
+
+        /* NAV */
+        .top-nav {
+            background: var(--forest);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 3px solid var(--gold);
+        }
+
+        /* HERO */
+        .hero {
+            background: linear-gradient(160deg, var(--forest) 0%, var(--forest-mid) 60%, #1e4d35 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: 'LETTER';
+            position: absolute;
+            right: -40px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: 'Playfair Display', serif;
+            font-size: 160px;
+            font-weight: 900;
+            color: rgba(255,255,255,0.04);
+            pointer-events: none;
+            white-space: nowrap;
+            line-height: 1;
+        }
+
+        /* SECTION HEADERS */
+        .sec-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+        }
+        .sec-icon {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .sec-eyebrow {
+            font-family: 'Source Sans 3', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+        .sec-title {
+            font-size: 20px;
+            font-weight: 800;
+            line-height: 1.1;
+            color: var(--text);
+        }
+
+        /* CARDS */
+        .card {
+            background: var(--warm-white);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+        }
+        .card-hover {
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .card-hover:hover {
+            box-shadow: 0 8px 24px rgba(26,61,43,0.1);
+            transform: translateY(-2px);
+        }
+
+        /* FEATURE CARDS */
+        .feature-card {
+            background: var(--warm-white);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+        .feature-card:hover {
+            box-shadow: 0 8px 24px rgba(26,61,43,0.1);
+        }
+        .feature-header {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .feature-num {
+            width: 34px; height: 34px;
+            background: var(--forest);
+            color: white;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .feature-body {
+            padding: 16px 20px;
+        }
+
+        /* GUIDELINE CARDS */
+        .guide-card {
+            background: var(--warm-white);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            transition: all 0.2s;
+            border-left: 4px solid var(--forest-light);
+        }
+        .guide-card:hover {
+            box-shadow: 0 8px 24px rgba(26,61,43,0.1);
+            transform: translateY(-2px);
+        }
+        .guide-num {
+            width: 34px; height: 34px;
+            background: var(--gold);
+            color: white;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        /* FORMAT BLOCK */
+        .format-block {
+            background: var(--warm-white);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 13px;
+        }
+
+        /* VIDEO */
+        .video-wrap {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #0a0a0a;
+        }
+        .video-wrap iframe {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border: none;
+        }
+        .yt-badge {
+            background: #cc0000;
+            color: white;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        /* CANVA */
+        .canva-embed {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            background: #f0f0f0;
+        }
+        .canva-embed iframe {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border: none;
+        }
+
+        /* COMPLETE BTN */
+        .complete-btn {
+            background: linear-gradient(135deg, var(--forest-light), var(--forest));
+            color: white;
+            border: none;
+            padding: 13px 30px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 16px rgba(26,61,43,0.3);
+        }
+        .complete-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(26,61,43,0.4);
+        }
+        .complete-btn:disabled { opacity: 0.65; cursor: not-allowed; }
+
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--forest);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover { background: var(--forest-mid); transform: translateY(-1px); }
+
+        /* PILL TAG */
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        /* PROGRESS BAR */
+        .prog-wrap { background: rgba(255,255,255,0.15); border-radius: 999px; height: 5px; width: 110px; }
+        .prog-fill { background: var(--gold-light); height: 100%; border-radius: 999px; width: 100%; }
+
+        /* ANIMATIONS */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .reveal { animation: fadeUp 0.5s ease forwards; opacity: 0; }
+        .d1 { animation-delay: 0.05s; } .d2 { animation-delay: 0.12s; }
+        .d3 { animation-delay: 0.20s; } .d4 { animation-delay: 0.28s; }
+        .d5 { animation-delay: 0.36s; } .d6 { animation-delay: 0.44s; }
+
+        hr.divider {
+            border: none;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            opacity: 0.4;
+            margin: 44px 0;
+        }
+
+        /* CALLOUT */
+        .callout {
+            display: flex;
+            gap: 14px;
+            padding: 18px 20px;
+            border-radius: 12px;
+            border: 1px solid;
+        }
+        .callout-icon { flex-shrink: 0; margin-top: 1px; }
+
+        /* LETTER SAMPLE */
+        .letter-sample {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 28px 32px;
+            font-size: 13px;
+            line-height: 1.8;
+            color: var(--text);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            font-family: 'Source Sans 3', sans-serif;
+            border-top: 4px solid var(--forest);
+        }
+        .letter-sample .label {
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--forest-light);
+            background: var(--tag-green);
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="top-nav text-white">
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center h-16">
+            <a href="index.html" class="flex items-center gap-2 font-bold hover:opacity-75 transition text-sm">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                Back to Dashboard
+            </a>
+            <div class="flex items-center gap-3">
+                <span class="text-xs font-semibold opacity-60 hidden sm:block">Purposive Communication</span>
+                <span class="text-xs font-bold px-3 py-1 rounded-full" style="background:rgba(200,146,42,0.25);color:var(--gold-light);">Lesson 8 of 8</span>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero text-white py-14 px-4 mb-10">
+    <div class="container mx-auto max-w-4xl relative z-10 text-center">
+        <div class="flex items-center justify-center gap-3 mb-4 reveal d1">
+            <span class="pill" style="background:rgba(200,146,42,0.22);color:var(--gold-light);">
+                <i data-lucide="briefcase" class="w-3 h-3"></i> Communication for Employment
+            </span>
+        </div>
+        <p class="text-xs font-bold tracking-widest uppercase opacity-50 mb-2 reveal d1">Lesson 8</p>
+        <h1 class="text-4xl md:text-5xl font-black leading-tight mb-4 reveal d2" style="font-family:'Playfair Display',serif;">
+            The Application<br>Letter
+        </h1>
+        <p class="text-base opacity-75 max-w-xl leading-relaxed mb-6 reveal d3 mx-auto">
+            Your gateway to a job interview — learn how to craft a compelling, professional application letter that makes employers want to meet you.
+        </p>
+
+        <!-- Progress + meta -->
+        <div class="flex flex-wrap items-center justify-center gap-5 reveal d4">
+            <div>
+                <p class="text-xs opacity-50 mb-1">Course Progress</p>
+                <div class="prog-wrap mx-auto"><div class="prog-fill"></div></div>
+            </div>
+            <div class="flex items-center gap-4 text-xs opacity-60">
+                <span class="flex items-center gap-1"><i data-lucide="book-open" class="w-3.5 h-3.5"></i> 5 Sections</span>
+                <span class="flex items-center gap-1"><i data-lucide="video" class="w-3.5 h-3.5"></i> 3 Videos</span>
+                <span class="flex items-center gap-1"><i data-lucide="presentation" class="w-3.5 h-3.5"></i> Visual Aid</span>
+            </div>
+        </div>
+
+        <!-- Quick-jump nav -->
+        <div class="flex flex-wrap justify-center gap-2 mt-7 reveal d5">
+            <a href="#sec-overview" class="text-xs font-semibold px-3 py-1.5 rounded-full transition hover:opacity-80" style="background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.85);">A · Overview</a>
+            <a href="#sec-features" class="text-xs font-semibold px-3 py-1.5 rounded-full transition hover:opacity-80" style="background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.85);">B · Features</a>
+            <a href="#sec-format" class="text-xs font-semibold px-3 py-1.5 rounded-full transition hover:opacity-80" style="background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.85);">C · Format</a>
+            <a href="#sec-guidelines" class="text-xs font-semibold px-3 py-1.5 rounded-full transition hover:opacity-80" style="background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.85);">D · Guidelines</a>
+            <a href="#sec-videos" class="text-xs font-semibold px-3 py-1.5 rounded-full transition hover:opacity-80" style="background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.85);">E · Videos</a>
+            <a href="#sec-canva" class="text-xs font-semibold px-3 py-1.5 rounded-full transition hover:opacity-80" style="background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.85);">F · Visual Aid</a>
+        </div>
+    </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="container mx-auto max-w-4xl px-4 pb-16">
+
+    <hr class="divider" style="margin-top:0;">
+
+    <!-- ── SECTION A: Overview ── -->
+    <section id="sec-overview" class="mb-12 reveal d1">
+        <div class="sec-header">
+            <div class="sec-icon" style="background:#e8f5ee;">
+                <i data-lucide="file-text" class="w-5 h-5" style="color:var(--forest-light);"></i>
+            </div>
+            <div>
+                <p class="sec-eyebrow" style="color:var(--forest-light);">Section A · Concept Grounding</p>
+                <h2 class="sec-title">What is an Application Letter?</h2>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4 mb-5">
+            <div class="card p-5">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:#e8f5ee;">
+                        <i data-lucide="target" class="w-4 h-4" style="color:var(--forest-light);"></i>
+                    </div>
+                    <h3 class="font-bold text-sm">Its Purpose</h3>
+                </div>
+                <p class="text-sm leading-relaxed" style="color:var(--text-muted);">Your application letter is generally the <strong>first thing prospective employers will see</strong>. It should motivate them to read your resume by providing a positive impression — showing that you have the qualifications they are looking for.</p>
+            </div>
+            <div class="card p-5">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:#fff7e6;">
+                        <i data-lucide="handshake" class="w-4 h-4" style="color:var(--gold);"></i>
+                    </div>
+                    <h3 class="font-bold text-sm">Its Role</h3>
+                </div>
+                <p class="text-sm leading-relaxed" style="color:var(--text-muted);">An application letter serves as a <strong>formal introduction of yourself</strong> to your prospective employer. It accompanies your resume and must make a favourable impression so you can secure an interview — achieved through how the letter is written and presented.</p>
+            </div>
+        </div>
+
+        <div class="callout" style="background:#e8f5ee;border-color:#b6d9c2;">
+            <div class="callout-icon">
+                <i data-lucide="lightbulb" class="w-5 h-5" style="color:var(--forest-light);"></i>
+            </div>
+            <div>
+                <p class="font-bold text-sm mb-0.5" style="color:var(--forest);">Key Takeaway</p>
+                <p class="text-xs leading-relaxed" style="color:var(--text-muted);">Think of your application letter as your personal sales pitch. Its job is not to repeat your resume — it's to <strong>compel the employer to read your resume</strong> and invite you for an interview.</p>
+            </div>
+        </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ── SECTION B: Features ── -->
+    <section id="sec-features" class="mb-12 reveal d2">
+        <div class="sec-header">
+            <div class="sec-icon" style="background:#fff7e6;">
+                <i data-lucide="star" class="w-5 h-5" style="color:var(--gold);"></i>
+            </div>
+            <div>
+                <p class="sec-eyebrow" style="color:var(--gold);">Section B · Features</p>
+                <h2 class="sec-title">Features of an Application Letter</h2>
+            </div>
+        </div>
+
+        <p class="text-sm mb-5" style="color:var(--text-muted);">A well-crafted application letter has three essential features that set it apart from other forms of professional writing.</p>
+
+        <div class="grid md:grid-cols-3 gap-4">
+
+            <!-- Feature 1: Qualifications -->
+            <div class="feature-card">
+                <div class="feature-header">
+                    <div class="feature-num">1</div>
+                    <div>
+                        <h4 class="font-bold text-sm">Qualifications</h4>
+                        <p class="text-xs" style="color:var(--text-muted);">Relevant · Matched · Targeted</p>
+                    </div>
+                </div>
+                <div class="feature-body">
+                    <p class="text-sm leading-relaxed" style="color:var(--text-muted);">Your letter must clearly communicate <strong>why you are interested</strong> in the position or organization, what skills you possess that match what the company is looking for, and why the employer should want to meet you.</p>
+                </div>
+            </div>
+
+            <!-- Feature 2: Pleasing Tone -->
+            <div class="feature-card">
+                <div class="feature-header">
+                    <div class="feature-num">2</div>
+                    <div>
+                        <h4 class="font-bold text-sm">Pleasing Tone</h4>
+                        <p class="text-xs" style="color:var(--text-muted);">Professional · Confident · Error-free</p>
+                    </div>
+                </div>
+                <div class="feature-body">
+                    <p class="text-sm leading-relaxed" style="color:var(--text-muted);">Go beyond simply stating your accomplishments. Through your words, <strong>demonstrate the kind of employee you will be</strong>. Presentation also matters — your letter must be neat and entirely error-free.</p>
+                </div>
+            </div>
+
+            <!-- Feature 3: Format -->
+            <div class="feature-card">
+                <div class="feature-header">
+                    <div class="feature-num">3</div>
+                    <div>
+                        <h4 class="font-bold text-sm">Format</h4>
+                        <p class="text-xs" style="color:var(--text-muted);">Structured · Business-like · Standard</p>
+                    </div>
+                </div>
+                <div class="feature-body">
+                    <p class="text-sm leading-relaxed" style="color:var(--text-muted);">Application letters follow a <strong>conventional business-like format</strong>. The most common is the <strong>Block Format</strong>, which includes the writer's address, date, recipient's name and address, salutation, body, closing, and signature.</p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ── SECTION C: Format ── -->
+    <section id="sec-format" class="mb-12 reveal d3">
+        <div class="sec-header">
+            <div class="sec-icon" style="background:#e8f0ff;">
+                <i data-lucide="layout" class="w-5 h-5 text-blue-600"></i>
+            </div>
+            <div>
+                <p class="sec-eyebrow text-blue-500">Section C · Block Format</p>
+                <h2 class="sec-title">Structure of an Application Letter</h2>
+            </div>
+        </div>
+
+        <p class="text-sm mb-5" style="color:var(--text-muted);">The most widely used format for application letters is the <strong>Block Format</strong> — all text is aligned to the left margin, with no indentation. Here are its required parts:</p>
+
+        <div class="grid md:grid-cols-2 gap-4 mb-6">
+            <div>
+                <div class="space-y-2">
+                    <div class="format-block flex items-start gap-3">
+                        <span class="pill flex-shrink-0 mt-0.5" style="background:#e8f5ee;color:var(--forest);">1</span>
+                        <div>
+                            <p class="font-bold text-sm">Writer's Address</p>
+                            <p class="text-xs mt-0.5" style="color:var(--text-muted);">Your complete mailing address at the top of the letter</p>
+                        </div>
+                    </div>
+                    <div class="format-block flex items-start gap-3">
+                        <span class="pill flex-shrink-0 mt-0.5" style="background:#e8f5ee;color:var(--forest);">2</span>
+                        <div>
+                            <p class="font-bold text-sm">Date</p>
+                            <p class="text-xs mt-0.5" style="color:var(--text-muted);">The date the letter is written (e.g., April 23, 2026)</p>
+                        </div>
+                    </div>
+                    <div class="format-block flex items-start gap-3">
+                        <span class="pill flex-shrink-0 mt-0.5" style="background:#e8f5ee;color:var(--forest);">3</span>
+                        <div>
+                            <p class="font-bold text-sm">Recipient's Name & Address</p>
+                            <p class="text-xs mt-0.5" style="color:var(--text-muted);">Full name, title, company name, and address of the employer</p>
+                        </div>
+                    </div>
+                    <div class="format-block flex items-start gap-3">
+                        <span class="pill flex-shrink-0 mt-0.5" style="background:#fff7e6;color:var(--gold);">4</span>
+                        <div>
+                            <p class="font-bold text-sm">Salutation</p>
+                            <p class="text-xs mt-0.5" style="color:var(--text-muted);">A formal greeting — e.g., "Dear Attorney Lim," or "Dear Sir/Madam,"</p>
+                        </div>
+                    </div>
+                    <div class="format-block flex items-start gap-3">
+                        <span class="pill flex-shrink-0 mt-0.5" style="background:#fff7e6;color:var(--gold);">5</span>
+                        <div>
+                            <p class="font-bold text-sm">Body / Message</p>
+                            <p class="text-xs mt-0.5" style="color:var(--text-muted);">Your introduction, qualifications, and call to action — the heart of the letter</p>
+                        </div>
+                    </div>
+                    <div class="format-block flex items-start gap-3">
+                        <span class="pill flex-shrink-0 mt-0.5" style="background:#e8f0ff;color:#3b5bdb;">6</span>
+                        <div>
+                            <p class="font-bold text-sm">Closing</p>
+                            <p class="text-xs mt-0.5" style="color:var(--text-muted);">A polite sign-off — e.g., "Sincerely," or "Respectfully yours,"</p>
+                        </div>
+                    </div>
+                    <div class="format-block flex items-start gap-3">
+                        <span class="pill flex-shrink-0 mt-0.5" style="background:#e8f0ff;color:#3b5bdb;">7</span>
+                        <div>
+                            <p class="font-bold text-sm">Signature</p>
+                            <p class="text-xs mt-0.5" style="color:var(--text-muted);">Your handwritten signature above your printed name</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sample Letter Preview -->
+            <div class="letter-sample text-xs leading-7">
+                <div class="mb-1"><span class="label">Writer's Address</span><br>123 Sampaguita St., Quezon City<br>Metro Manila, Philippines</div>
+                <div class="mb-1"><span class="label">Date</span><br>April 23, 2026</div>
+                <div class="mb-1">
+                    <span class="label">Recipient</span><br>
+                    Attorney Maria Santos<br>
+                    HR Director, ABC Corporation<br>
+                    456 Ayala Ave., Makati City
+                </div>
+                <div class="mb-1"><span class="label">Salutation</span><br>Dear Attorney Santos,</div>
+                <div class="mb-1">
+                    <span class="label">Body</span><br>
+                    I am writing to apply for the <em>Junior Accountant</em> position advertised on your company's website. With a Bachelor's degree in Accountancy from the University of the Philippines and a strong background in financial reporting, I am confident I can contribute meaningfully to your team...
+                </div>
+                <div class="mb-1"><span class="label">Closing</span><br>Respectfully yours,</div>
+                <div><span class="label">Signature</span><br><em>[Handwritten Signature]</em><br>Franchesca M. Morales</div>
+            </div>
+        </div>
+
+        <div class="callout" style="background:#e8f0ff;border-color:#c7d2fe;">
+            <div class="callout-icon">
+                <i data-lucide="info" class="w-5 h-5 text-blue-500"></i>
+            </div>
+            <div>
+                <p class="font-bold text-sm mb-0.5 text-blue-700">Block Format Tip</p>
+                <p class="text-xs leading-relaxed" style="color:var(--text-muted);">In block format, <strong>every part of the letter begins at the left margin</strong> — no paragraph indentations. Leave one blank line between each section for clean, professional spacing.</p>
+            </div>
+        </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ── SECTION D: Guidelines ── -->
+    <section id="sec-guidelines" class="mb-12 reveal d4">
+        <div class="sec-header">
+            <div class="sec-icon" style="background:#fff1f2;">
+                <i data-lucide="check-square" class="w-5 h-5 text-rose-500"></i>
+            </div>
+            <div>
+                <p class="sec-eyebrow text-rose-500">Section D · Writing Tips</p>
+                <h2 class="sec-title">Guidelines for Writing an Application Letter</h2>
+            </div>
+        </div>
+
+        <p class="text-sm mb-5" style="color:var(--text-muted);">Follow these five guidelines to write an application letter that is professional, compelling, and employer-ready.</p>
+
+        <div class="space-y-4">
+
+            <!-- Guideline 1 -->
+            <div class="guide-card">
+                <div class="feature-header">
+                    <div class="guide-num">1</div>
+                    <div>
+                        <h4 class="font-bold text-sm">Focus</h4>
+                        <p class="text-xs" style="color:var(--text-muted);">Keep it relevant and professional</p>
+                    </div>
+                    <span class="pill ml-auto" style="background:#e8f5ee;color:var(--forest);">Professional</span>
+                </div>
+                <div class="feature-body">
+                    <p class="text-sm leading-relaxed" style="color:var(--text-muted);">An application letter is <strong>not personal and should not be chatty</strong>. Keep it focused — when applying for a position, include only information relevant to that specific position. Avoid off-topic anecdotes or overly casual language.</p>
+                </div>
+            </div>
+
+            <!-- Guideline 2 -->
+            <div class="guide-card">
+                <div class="feature-header">
+                    <div class="guide-num">2</div>
+                    <div>
+                        <h4 class="font-bold text-sm">Stay on Topic</h4>
+                        <p class="text-xs" style="color:var(--text-muted);">State your purpose clearly from the start</p>
+                    </div>
+                    <span class="pill ml-auto" style="background:#fff7e6;color:var(--gold);">Clarity</span>
+                </div>
+                <div class="feature-body">
+                    <p class="text-sm leading-relaxed mb-3" style="color:var(--text-muted);">State the reason for the letter explicitly. Unlike essays or emails, letters need to announce their purpose in the <strong>first paragraph</strong> — ideally the first sentence. When applying, say so immediately.</p>
+                    <div class="rounded-lg p-3 text-xs" style="background:#fffbf0;border:1px solid #fde9b0;">
+                        ✏️ <strong>Example opening:</strong> <em>"I am writing for the FASIH Scholarship for students majoring in Accountancy."</em>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guideline 3 -->
+            <div class="guide-card">
+                <div class="feature-header">
+                    <div class="guide-num">3</div>
+                    <div>
+                        <h4 class="font-bold text-sm">Think of Your Letter as an Argument</h4>
+                        <p class="text-xs" style="color:var(--text-muted);">Make a claim and support it with evidence</p>
+                    </div>
+                    <span class="pill ml-auto" style="background:#e8f0ff;color:#3b5bdb;">Persuasion</span>
+                </div>
+                <div class="feature-body">
+                    <p class="text-sm leading-relaxed mb-3" style="color:var(--text-muted);">When asking for a job, you are making an <strong>argument</strong>. You are making a claim — that you are qualified for a certain position — and you need to <strong>support that claim with reasons and evidence</strong> such as your education, work experience, and references.</p>
+                    <div class="rounded-lg p-3 text-xs" style="background:#f5f5ff;border:1px solid #c7d2fe;">
+                        💡 <strong>Example:</strong> Franchesca Morales cites her education and work experience, and offers to supply references who will support her application.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guideline 4 -->
+            <div class="guide-card">
+                <div class="feature-header">
+                    <div class="guide-num">4</div>
+                    <div>
+                        <h4 class="font-bold text-sm">Choose an Appropriate Salutation</h4>
+                        <p class="text-xs" style="color:var(--text-muted);">Address your reader correctly</p>
+                    </div>
+                    <span class="pill ml-auto" style="background:#f0fdf4;color:#15803d;">Etiquette</span>
+                </div>
+                <div class="feature-body">
+                    <p class="text-sm leading-relaxed mb-3" style="color:var(--text-muted);">The appropriate salutation depends on how much you know about your reader:</p>
+                    <div class="grid sm:grid-cols-3 gap-2 text-xs">
+                        <div class="rounded-lg p-3" style="background:#e8f5ee;border:1px solid #b6d9c2;">
+                            <p class="font-bold mb-1" style="color:var(--forest);">Know name & title</p>
+                            <p style="color:var(--text-muted);">"Dear Attorney Lim,"</p>
+                        </div>
+                        <div class="rounded-lg p-3" style="background:#fff7e6;border:1px solid #fde9b0;">
+                            <p class="font-bold mb-1" style="color:var(--gold);">Know name only</p>
+                            <p style="color:var(--text-muted);">"Dear Jean Chavez,"</p>
+                        </div>
+                        <div class="rounded-lg p-3" style="background:#f5f5ff;border:1px solid #c7d2fe;">
+                            <p class="font-bold mb-1 text-blue-700">Unknown reader</p>
+                            <p style="color:var(--text-muted);">"Dear Sir/Madam,"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guideline 5 -->
+            <div class="guide-card" style="border-left-color:#c8922a;">
+                <div class="feature-header">
+                    <div class="guide-num" style="background:var(--gold);">5</div>
+                    <div>
+                        <h4 class="font-bold text-sm">Proofread</h4>
+                        <p class="text-xs" style="color:var(--text-muted);">Perfection is the standard</p>
+                    </div>
+                    <span class="pill ml-auto" style="background:#fff7e6;color:var(--gold);">Critical</span>
+                </div>
+                <div class="feature-body">
+                    <p class="text-sm leading-relaxed mb-3" style="color:var(--text-muted);">Few writing situations demand greater perfection than professional letters — especially application letters. <strong>Typos, grammar errors, and sloppiness</strong> immediately prejudice readers against applicants. Employers will wonder: <em>"If this applicant can't take the time to proofread, how badly do they actually want this position?"</em></p>
+                    <div class="callout" style="background:#fffbf0;border-color:#fde9b0;padding:12px 14px;">
+                        <div class="callout-icon">
+                            <i data-lucide="alert-triangle" class="w-4 h-4" style="color:var(--gold);"></i>
+                        </div>
+                        <p class="text-xs leading-relaxed" style="color:var(--text-muted);">To compete, <strong>strive for perfection</strong>. Read your letter aloud, use spell-check, and ask someone else to review it before submitting.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ── SECTION E: Videos ── -->
+    <section id="sec-videos" class="mb-12 reveal d5">
+        <div class="sec-header">
+            <div class="sec-icon" style="background:#fff1f0;">
+                <i data-lucide="youtube" class="w-5 h-5 text-red-600"></i>
+            </div>
+            <div>
+                <p class="sec-eyebrow text-red-500">Section E · Supplementary Videos</p>
+                <h2 class="sec-title">Watch: Application Letter Writing in Action</h2>
+            </div>
+        </div>
+
+        <p class="text-sm mb-5" style="color:var(--text-muted);">These videos show you how to write a professional application letter step by step. Watch them to see the lesson concepts applied with real-world examples.</p>
+
+        <div class="grid md:grid-cols-2 gap-5 mb-5">
+
+            <!-- Video 1 -->
+            <div class="card overflow-hidden card-hover">
+                <div class="video-wrap">
+                    <iframe src="https://www.youtube.com/embed/zJoFPr8M02I"
+                        title="How to Write an Application Letter"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        allowfullscreen loading="lazy"></iframe>
+                </div>
+                <div class="flex items-start gap-3 p-4 border-t border-gray-100" style="background:#fafafa;">
+                    <span class="yt-badge mt-0.5">YouTube</span>
+                    <div>
+                        <p class="font-bold text-sm leading-snug">How to Write an Application Letter</p>
+                        <p class="text-xs mt-0.5" style="color:var(--text-muted);">Step-by-step walkthrough with samples — perfect for seeing all 7 block format parts in action</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Video 2 -->
+            <div class="card overflow-hidden card-hover">
+                <div class="video-wrap">
+                    <iframe src="https://www.youtube.com/embed/MeDowsrPx5c"
+                        title="Writing a Job Application Letter - Tips, Words and Phrases"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        allowfullscreen loading="lazy"></iframe>
+                </div>
+                <div class="flex items-start gap-3 p-4 border-t border-gray-100" style="background:#fafafa;">
+                    <span class="yt-badge mt-0.5">YouTube</span>
+                    <div>
+                        <p class="font-bold text-sm leading-snug">Writing a Job Application Letter — Tips, Words & Phrases</p>
+                        <p class="text-xs mt-0.5" style="color:var(--text-muted);">Covers tone, vocabulary, and phrasing — ties directly to the "Pleasing Tone" and "Focus" guidelines</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Video 3 – full width -->
+        <div class="card overflow-hidden card-hover">
+            <div class="video-wrap">
+                <iframe src="https://www.youtube.com/embed/hrZSfMly_Ck"
+                    title="How to Write a Cover Letter by Indeed"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    allowfullscreen loading="lazy"></iframe>
+            </div>
+            <div class="flex items-start gap-3 p-4 border-t border-gray-100" style="background:#fafafa;">
+                <span class="yt-badge mt-0.5">YouTube</span>
+                <div>
+                    <p class="font-bold text-sm leading-snug">How to Write a Cover / Application Letter (Indeed)</p>
+                    <p class="text-xs mt-0.5" style="color:var(--text-muted);">Industry-standard advice from Indeed — focuses on making your letter an argument and tailoring it to each employer</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="callout mt-4" style="background:#f0f8f3;border-color:#b6d9c2;">
+            <div class="callout-icon">
+                <i data-lucide="lightbulb" class="w-5 h-5" style="color:var(--forest-light);"></i>
+            </div>
+            <div>
+                <p class="font-bold text-sm mb-0.5" style="color:var(--forest);">Active Watching Tip</p>
+                <p class="text-xs leading-relaxed" style="color:var(--text-muted);">As you watch, identify which of the five guidelines each video focuses on — Focus, Stay on Topic, Argument, Salutation, or Proofreading. Take note of specific phrases and vocabulary you can use in your own letter.</p>
+            </div>
+        </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ── SECTION F: Canva Visual Aid ── -->
+    <section id="sec-canva" class="mb-12 reveal d6">
+        <div class="sec-header">
+            <div class="sec-icon" style="background:#f3f0ff;">
+                <i data-lucide="presentation" class="w-5 h-5 text-violet-600"></i>
+            </div>
+            <div>
+                <p class="sec-eyebrow text-violet-500">Section F · Visual Aid</p>
+                <h2 class="sec-title">Lesson Presentation</h2>
+            </div>
+        </div>
+
+        <p class="text-sm mb-4" style="color:var(--text-muted);">Review the visual summary of this lesson below. Use it as a study reference for the key concepts covered.</p>
+
+        <div class="card overflow-hidden">
+            <!-- Canva header -->
+            <div class="flex items-center gap-3 px-5 py-3 border-b border-gray-100" style="background:linear-gradient(90deg,#5b21b6,#4338ca);">
+                <div class="w-6 h-6 bg-white rounded-md flex items-center justify-center flex-shrink-0">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#5b21b6"/><path d="M8 12h8M12 8v8" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg>
+                </div>
+                <span class="text-white font-bold text-sm">Lesson 8 — Application Letter Visual Aid</span>
+                <span class="ml-auto text-xs font-bold px-2.5 py-1 rounded-full" style="background:rgba(255,255,255,0.18);color:rgba(255,255,255,0.9);">Canva · Interactive</span>
+            </div>
+            <!-- Canva embed -->
+            <div class="canva-embed" id="canvaWrapper">
+                <iframe
+                    id="canvaFrame"
+                    loading="lazy"
+                    src="https://www.canva.com/design/DAHHZgzNQz8/ta5i46pcQ4U11JOQQ5X0VQ/view?embed"
+                    allowfullscreen="allowfullscreen"
+                    allow="fullscreen"
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;">
+                </iframe>
+                <!-- Fallback -->
+                <div id="canvaFallback" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:#f3f0ff;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#5b21b6" opacity="0.15"/><path d="M12 8v4m0 4h.01" stroke="#5b21b6" stroke-width="2" stroke-linecap="round"/></svg>
+                    <p style="font-weight:700;color:#5b21b6;font-size:15px;">Canva presentation could not be embedded.</p>
+                    <p style="font-size:13px;color:#6b7280;max-width:340px;">Make sure the design is shared publicly in Canva (Share → Anyone with the link → Can view).</p>
+                    <a href="https://www.canva.com/design/DAHHZgzNQz8/ta5i46pcQ4U11JOQQ5X0VQ/view" target="_blank" rel="noopener noreferrer"
+                       style="background:#5b21b6;color:white;padding:10px 24px;border-radius:999px;font-weight:700;font-size:13px;text-decoration:none;margin-top:4px;">
+                        Open in Canva ↗
+                    </a>
+                </div>
+            </div>
+            <script>
+                (function() {
+                    var frame = document.getElementById('canvaFrame');
+                    var fallback = document.getElementById('canvaFallback');
+                    if (frame && fallback) {
+                        frame.addEventListener('error', function() {
+                            frame.style.display = 'none';
+                            fallback.style.display = 'flex';
+                        });
+                        setTimeout(function() {
+                            try {
+                                if (frame.contentDocument && frame.contentDocument.title === '') {
+                                    frame.style.display = 'none';
+                                    fallback.style.display = 'flex';
+                                }
+                            } catch(e) {}
+                        }, 8000);
+                    }
+                })();
+            </script>
+            <!-- Footer -->
+            <div class="flex items-center justify-between gap-3 px-5 py-3 border-t border-gray-100 flex-wrap" style="background:#faf8ff;">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="mouse-pointer-2" class="w-4 h-4 text-violet-500"></i>
+                    <span class="text-xs font-semibold text-violet-600">Click slides to navigate</span>
+                </div>
+                <a href="https://www.canva.com/design/DAHHZgzNQz8/ta5i46pcQ4U11JOQQ5X0VQ/view" target="_blank" rel="noopener noreferrer"
+                   class="inline-flex items-center gap-2 text-white text-xs font-bold px-4 py-2 rounded-full transition"
+                   style="background:#5b21b6;"
+                   onmouseover="this.style.background='#4c1d95'" onmouseout="this.style.background='#5b21b6'">
+                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                    Open in Canva
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── NAVIGATION + COMPLETE ── -->
+    <div class="border-t-2 border-dashed pt-8 mt-4" style="border-color:var(--border);">
+        <div class="flex flex-wrap justify-between items-center gap-4">
+            <a href="lesson7.html" class="nav-btn">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Lesson 7
+            </a>
+
+            <button id="completeLessonBtn" onclick="markLesson8Complete()" class="complete-btn">
+                <i data-lucide="check-circle" class="w-5 h-5"></i>
+                <span>Mark Lesson as Complete</span>
+            </button>
+
+            <div class="flex items-center gap-2 text-sm" style="color:var(--text-muted);">
+                <i data-lucide="trophy" class="w-4 h-4" style="color:var(--gold);"></i>
+                <span>Final lesson — completion saves your progress</span>
+            </div>
+        </div>
+        <p class="text-center text-xs mt-5" style="color:var(--text-muted);">Completing this lesson saves your progress. <strong>Congratulations on finishing the course!</strong> 🎉</p>
+    </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer style="background:var(--forest);color:white;padding:32px 0;margin-top:56px;border-top:3px solid var(--gold);">
+    <div class="container mx-auto px-4 text-center">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold-light);margin-bottom:6px;">Purposive Communication</div>
+        <p style="font-weight:700;font-size:16px;font-family:'Playfair Display',serif;margin-bottom:4px;">Lesson 8: The Application Letter</p>
+        <p style="font-size:12px;opacity:0.5;">Asynchronous Class</p>
+    </div>
+</footer>
+
+<script>
+    lucide.createIcons();
+
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+            const target = document.querySelector(a.getAttribute('href'));
+            if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+        });
+    });
+
+    // Scroll-triggered reveals
+    const reveals = document.querySelectorAll('.reveal');
+    const obs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+                obs.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.08 });
+    reveals.forEach(el => { el.style.animationPlayState = 'paused'; obs.observe(el); });
+</script>
+
+</body>
+</html>
